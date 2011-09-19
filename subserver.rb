@@ -1,5 +1,6 @@
 require 'net/http'
 require 'rexml/document'
+require 'thread'
 include REXML
 
 require 'configs'
@@ -8,6 +9,7 @@ class Subserver
     
     def initialize
         @configs = Configs.new
+        @queue = Queue.new
     end
 
     def getArtists
@@ -96,7 +98,13 @@ class Subserver
     end
 
     def whichDidYouMean(hash)
-        
+
+=begin
+        unless context.eql? "artist" or context.eql? "album" or context.eql? "song"
+            raise ArgumentError, "context must be either song, album, or artist"
+        end
+=end
+
         # only one value, return it
         if hash.length == 1
             hash.each_key { |key| return key }
@@ -158,8 +166,78 @@ class Subserver
 
     end
 
-    def play(song, artist = "", album = "")
+    def queueSong(song, artist = "", album = "")
 
+        sid = getSong(song, artist, album)
+        
+        method = "stream.view"
+
+        url = buildURL(method, "id", sid)
+
+        @queue << url
+
+    end
+
+    def queueAlbum(album, artist = "")
+
+        searchResults = search(album)
+
+        result_hash = {}
+
+        searchResults.elements.each('subsonic-response/searchResult2/album') do |album|
+            unless artist.empty?
+                if album.attributes["artist"].eql? artist
+                    result_hash[album.attributes["id"]] = album.attributes["title"]
+                end
+            else
+                result_hash[album.attributes["id"]] = album.attributes["title"]
+            end
+        end
+
+        if result_hash.length.zero? and not artist.eql? ""
+            puts "No albums found by artist: " + artist
+            return
+        elsif result_hash.length.zero?
+            puts album + ": album not found"
+            return
+        end
+        
+        aid = whichDidYouMean(result_hash)
+
+        # method to get songs
+        method = "getMusicDirectory.view"
+
+        url = buildURL(method, "id", aid)
+
+        data = Net::HTTP.get_response(URI.parse(url)).body
+
+        doc = Document.new(data)
+
+        stream = "stream.view"
+
+        doc.elements.each('subsonic-response/directory/child') do |song|
+            nurl = buildURL(stream, "id", song.attributes["id"])
+            @queue << nurl
+        end
+    end
+
+
+    def showQueue
+        tmpQueue = Queue.new
+
+        until @queue.empty? do
+            url = @queue.pop
+            puts url
+            tmpQueue << url
+        end
+
+        until tmpQueue.empty? do 
+            url = tmpQueue.pop
+            @queue << url
+        end
+    end
+
+    def getSong(song, artist = "", album = "")
         searchResults = search(song)
 
         result_hash = {}
@@ -184,13 +262,25 @@ class Subserver
             puts "Song not found: " + song
         end
         
-        sid = whichDidYouMean(result_hash)
+        return whichDidYouMean(result_hash)
         
+    end
+    
+    def play(song = "", artist = "", album = "")
+
+        if song.empty?
+            until @queue.empty? do
+                url = @queue.pop
+                system("mplayer \"#{url}\"")
+            end
+            return
+        end
+
+        sid = getSong(song, artist, album)
+
         method = "stream.view"
 
         url = buildURL(method, "id", sid)
-
-        puts url
 
         system("mplayer \"#{url}\"")
 
@@ -200,7 +290,13 @@ class Subserver
 end
 
 subserver = Subserver.new
-subserver.play("who are you")
+
+subserver.queueAlbum("")
+#subserver.queueSong("who are you")
+#subserver.queueSong("who are you")
+subserver.play
+
+#subserver.playSong("who are you")
 #subserver.getSongs("the who")
 # subserver.getSongs("all killer no filler")
 
