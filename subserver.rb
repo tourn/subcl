@@ -294,12 +294,12 @@ class Subserver
 
 end
 
-subserver = Subserver.new
+#subserver = Subserver.new
 
-subserver.queueAlbum("21")
+#subserver.queueAlbum("21")
 #subserver.queueSong("who are you")
 #subserver.queueSong("who are you")
-subserver.play
+#subserver.play
 
 #subserver.playSong("who are you")
 #subserver.getSongs("the who")
