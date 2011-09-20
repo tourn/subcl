@@ -10,7 +10,7 @@ class Subcl
 
     def repl
         puts "Subcl! Command-line Subsonic."
-        puts "Type 'help' for help"
+        #puts "Type 'help' for help"
         print "> "
         until (line = gets.chomp).eql? "quit"
             spl = line.split(' ')
