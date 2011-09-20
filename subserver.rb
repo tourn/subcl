@@ -8,7 +8,12 @@ require 'configs'
 class Subserver
     
     def initialize
-        @configs = Configs.new
+        begin
+            @configs = Configs.new
+        rescue => e
+            puts e.message
+            exit
+        end
         @queue = Queue.new
     end
 
@@ -291,7 +296,7 @@ end
 
 subserver = Subserver.new
 
-subserver.queueAlbum("")
+subserver.queueAlbum("21")
 #subserver.queueSong("who are you")
 #subserver.queueSong("who are you")
 subserver.play
