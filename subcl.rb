@@ -22,7 +22,7 @@ class Subcl
                     print "[Song title]: "
                     song = gets.chomp
                 else
-                    song = spl.index[1,spl.length-1].join(' ')
+                    song = spl[1,spl.length-1].join(' ')
                 end
 
                 # if we still didn't get a value
@@ -36,7 +36,7 @@ class Subcl
                     print "[Album title]: "
                         album = gets.chomp
                 else
-                    album = spl.index[1,spl.length-1].join(' ')
+                    album = spl[1,spl.length-1].join(' ')
                 end
 
                 # if we still didn't get a value
