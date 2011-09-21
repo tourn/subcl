@@ -176,14 +176,20 @@ class Subserver
             return
         end
         
-        @queue << song
+        enqueue(sid, song)
 
-        method = "stream.view"
+    end
 
-        url = buildURL(method, "id", sid)
+    def enqueue(songid, title)
+        # method to get songs
+        stream = "stream.view"
+        nurl = buildURL(stream, "id", songid)
+        @qurl << nurl
+        @queue << title
+    end
 
-        @qurl << url
-
+    def queue(query, delim = nil)
+# will search for query, queue what the user wants
     end
 
     def queueAlbum(album, artist = "")
@@ -209,12 +215,8 @@ class Subserver
 
         doc = Document.new(data)
 
-        stream = "stream.view"
-
         doc.elements.each('subsonic-response/directory/child') do |song|
-            nurl = buildURL(stream, "id", song.attributes["id"])
-            @qurl << nurl
-            @queue << song.attributes["title"]
+            enqueue(song.attributes["id"], song.attributes["title"])
         end
     end
 
