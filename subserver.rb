@@ -174,6 +174,10 @@ class Subserver
     def queueSong(song, artist = "", album = "")
 
         sid = getSong(song, artist, album)
+
+        if sid == nil
+            return
+        end
         
         method = "stream.view"
 
@@ -265,6 +269,7 @@ class Subserver
 
         if result_hash.length.zero?
             puts "Song not found: " + song
+            return
         end
         
         return whichDidYouMean(result_hash)
