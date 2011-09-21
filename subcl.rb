@@ -47,7 +47,7 @@ class Subcl
                 @ss.getArtists
             elsif spl[0].eql? "play"
                 @ss.play
-            elsif spl[0] != "quit"
+            elsif spl[0] != "quit" and spl[0] != nil
                 puts "#{spl[0]}: command unrecognized"
             end
             
