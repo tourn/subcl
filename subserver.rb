@@ -15,6 +15,7 @@ class Subserver
             exit
         end
         @queue = Queue.new
+        @qurl = Queue.new
     end
 
     def getArtists
@@ -35,20 +36,14 @@ class Subserver
 
     def getAlbums(artist)
 
-        searchResults = search(artist)
+        searchResults = search(artist, "artist")
 
-        result_hash = {}
-
-        searchResults.elements.each('subsonic-response/searchResult2/artist') do |artist|
-            result_hash[artist.attributes["id"]] = artist.attributes["name"]
-        end
-
-        if result_hash.length.zero?
+        if searchResults.length.zero?
             puts "No albums found by artist: " + artist
             return
         end
 
-        aid = whichDidYouMean(result_hash)
+        aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[1]}"}
 
         # method to grab albums
         method = "getMusicDirectory.view"
@@ -67,26 +62,14 @@ class Subserver
 
     def getSongs(album, artist = "")
         
-        searchResults = search(album)
+        searchResults = search(album, "album")
 
-        result_hash = {}
-
-        searchResults.elements.each('subsonic-response/searchResult2/album') do |album|
-            unless artist.empty?
-                if album.attributes["artist"].eql? artist
-                    result_hash[album.attributes["id"]] = album.attributes["title"]
-                end
-            else
-                result_hash[album.attributes["id"]] = album.attributes["title"]
-            end
-        end
-
-        if result_hash.length.zero?
+        if searchResults.length.zero?
             puts "No albums found by artist: " + artist
             return
         end
 
-        aid = whichDidYouMean(result_hash)
+        aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"}
 
         # method to get songs
         method = "getMusicDirectory.view"
@@ -104,12 +87,6 @@ class Subserver
 
     def whichDidYouMean(hash)
 
-=begin
-        unless context.eql? "artist" or context.eql? "album" or context.eql? "song"
-            raise ArgumentError, "context must be either song, album, or artist"
-        end
-=end
-
         # only one value, return it
         if hash.length == 1
             hash.each_key { |key| return key }
@@ -120,7 +97,9 @@ class Subserver
 
         hash.each do |key, value|
             hlocal[i] = key
-            puts "[#{i}] #{value}"
+            #puts "[#{i}] #{value}"
+            print "[#{i}] " 
+            yield(value)
             i = i + 1
         end
 
@@ -136,15 +115,33 @@ class Subserver
 
     end
 
-    def search(query)
+    def search(query, delim = nil)
         method = "search2.view"
-
         url = buildURL(method, "query", URI.escape(query))
-
         data = Net::HTTP.get_response(URI.parse(url)).body
+        doc = Document.new(data)
 
-        return Document.new(data)
+        result_hash = {} # map to store results
 
+        if delim.eql? "artist" or delim.eql? nil
+            doc.elements.each('subsonic-response/searchResult2/artist') do |artist|
+                result_hash[artist.attributes["id"]] = artist.attributes["name"]
+            end
+        end
+
+        if delim.eql? "album" or delim.eql? nil
+            doc.elements.each('subsonic-response/searchResult2/album') do |album|
+                result_hash[album.attributes["id"]] = [album.attributes["title"],album.attributes["artist"]]
+            end
+        end
+
+        if delim.eql? "song" or delim.eql? nil
+            doc.elements.each('subsonic-response/searchResult2/song') do |song|
+                result_hash[song.attributes["id"]] = [song.attributes["title"], song.attributes["album"], song.attributes["artist"]]
+            end
+        end
+
+        result_hash
     end
 
     def buildURL(method, *params)
@@ -167,7 +164,7 @@ class Subserver
             url = url + "\&" + key + "=" + value
         end
 
-        return url
+        url
 
     end
 
@@ -179,39 +176,29 @@ class Subserver
             return
         end
         
+        @queue << song
+
         method = "stream.view"
 
         url = buildURL(method, "id", sid)
 
-        @queue << url
+        @qurl << url
 
     end
 
     def queueAlbum(album, artist = "")
 
-        searchResults = search(album)
+        searchResults = search(album, "album")
 
-        result_hash = {}
-
-        searchResults.elements.each('subsonic-response/searchResult2/album') do |album|
-            unless artist.empty?
-                if album.attributes["artist"].eql? artist
-                    result_hash[album.attributes["id"]] = album.attributes["title"]
-                end
-            else
-                result_hash[album.attributes["id"]] = album.attributes["title"]
-            end
-        end
-
-        if result_hash.length.zero? and not artist.eql? ""
+        if searchResults.length.zero? and not artist.eql? ""
             puts "No albums found by artist: " + artist
             return
-        elsif result_hash.length.zero?
+        elsif searchResults.length.zero?
             puts album + ": album not found"
             return
         end
         
-        aid = whichDidYouMean(result_hash)
+        aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[1]}"}
 
         # method to get songs
         method = "getMusicDirectory.view"
@@ -226,7 +213,8 @@ class Subserver
 
         doc.elements.each('subsonic-response/directory/child') do |song|
             nurl = buildURL(stream, "id", song.attributes["id"])
-            @queue << nurl
+            @qurl << nurl
+            @queue << song.attributes["title"]
         end
     end
 
@@ -247,40 +235,23 @@ class Subserver
     end
 
     def getSong(song, artist = "", album = "")
-        searchResults = search(song)
+        searchResults = search(song, "song")
 
-        result_hash = {}
-
-        searchResults.elements.each('subsonic-response/searchResult2/song') do |song|
-            unless artist.empty?
-                unless album.empty?
-                    if song.attributes["artist"].eql? artist and song.attributes["album"].eql? album
-                        result_hash[song.attributes["id"]] = song.attributes["title"]
-                    end
-                else
-                    if song.attributes["artist"].eql? artist
-                        result_hash[song.attributes["id"]] = song.attributes["title"]
-                    end
-                end
-            else
-                result_hash[song.attributes["id"]] = song.attributes["title"]
-            end
-        end
-
-        if result_hash.length.zero?
+        if searchResults.length.zero?
             puts "Song not found: " + song
             return
         end
         
-        return whichDidYouMean(result_hash)
+        return whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"}
         
     end
     
     def play(song = "", artist = "", album = "")
 
         if song.empty?
-            until @queue.empty? do
-                url = @queue.pop
+            until @qurl.empty? do
+                url = @qurl.pop
+                @queue.pop
                 system("mplayer \"#{url}\"")
             end
             return
@@ -298,15 +269,3 @@ class Subserver
     end
 
 end
-
-#subserver = Subserver.new
-
-#subserver.queueAlbum("21")
-#subserver.queueSong("who are you")
-#subserver.queueSong("who are you")
-#subserver.play
-
-#subserver.playSong("who are you")
-#subserver.getSongs("the who")
-# subserver.getSongs("all killer no filler")
-
