@@ -45,6 +45,20 @@ class Subcl
                 end
             elsif spl[0].eql? "artists"
                 @ss.getArtists
+            elsif spl[0].eql? "albums"
+                artist = ""
+                if spl.length == 1
+                    print "[Artist]: "
+                    artist = gets.chomp
+                else
+                    artist = spl[1,spl.length-1].join(' ')
+                end
+
+                unless artist.eql? ""
+                    @ss.getAlbums(artist)
+                end
+            elsif spl[0].eql? "queue"
+                @ss.showQueue
             elsif spl[0].eql? "play"
                 @ss.play
             elsif spl[0] != "quit" and spl[0] != nil
