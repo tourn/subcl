@@ -1,8 +1,12 @@
-Subcl! a command-line frontend for [Subsonic][http://www.subsonic.org]
+Subcl! a command-line frontend for [Subsonic][sub]
+==================================================
+
+[sub]: http://subsonic.org
 
 Requires ruby 1.8+ and mplayer
 
 How to use:
+-----------
  - .subcl file in your home directory (~/.subcl) contains:
    1. "server <name of your subsonic server>"
    2. "username <username for subsonic>"
@@ -13,6 +17,7 @@ How to use:
    3. "play" -- plays each song in the queue (in order)
 
 Issues and TODO:
+----------------
  - convert to using basic auth
  - more functionality (playing song/album on the fly)
  - modifying queue on the fly
