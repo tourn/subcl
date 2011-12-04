@@ -12,9 +12,12 @@ How to use:
    2. "username &lt;username for subsonic>"
    3. "password &lt;password for subsonic>"
  - currently supported commands:
-   1. "qs &lt;song name>" -- queues a song
-   2. "qa &lt;album name>" -- queues an album
-   3. "play" -- plays each song in the queue (in order)
+   1. "artists" -- lists all artists available
+   2. "albums &lt;artist name>" -- lists all albums for a given artist
+   3. "qs &lt;song name>" -- queues a song
+   4. "qa &lt;album name>" -- queues an album
+   5. "queue" -- show the queue
+   6. "play" -- plays each song in the queue (in order)
 
 Issues and TODO:
 ----------------
