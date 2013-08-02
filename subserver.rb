@@ -3,7 +3,7 @@ require 'rexml/document'
 require 'thread'
 include REXML
 
-require 'configs'
+require './configs'
 
 class Subserver
     
@@ -254,7 +254,8 @@ class Subserver
             until @qurl.empty? do
                 url = @qurl.pop
                 @queue.pop
-                system("mplayer \"#{url}\"")
+                system("mpc add \"#{url}\"")
+                system("mpc play")
             end
             return
         end
@@ -265,7 +266,8 @@ class Subserver
 
         url = buildURL(method, "id", sid)
 
-        system("mplayer \"#{url}\"")
+        system("mpc add \"#{url}\"")
+        system("mpc play")
 
         puts "Thanks!"
     end

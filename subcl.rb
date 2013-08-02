@@ -1,5 +1,5 @@
 
-require 'subserver'
+require './subserver'
 
 class Subcl
 
