@@ -19,6 +19,23 @@ How to use:
    5. "queue" -- show the queue
    6. "play" -- plays each song in the queue (in order)
 
+planned commands
+----------------
+lr list aRtists [pattern]
+ll list aLbums [pattern]
+ls list songs [pattern]
+
+pr play aRtist [pattern]
+pl play aLbum [pattern]
+ps play song [pattern]
+
+qr queue aRtist [pattern]
+ql queue aLbum [pattern]
+qs queue song [pattern]
+
+
+
+
 Issues and TODO:
 ----------------
  - convert to using basic auth

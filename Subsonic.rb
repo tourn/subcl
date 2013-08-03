@@ -5,7 +5,7 @@ include REXML
 
 require './configs'
 
-class Subserver
+class Subsonic
     
     def initialize
         begin
@@ -14,8 +14,6 @@ class Subserver
             puts e.message
             exit
         end
-        @queue = Queue.new
-        @qurl = Queue.new
     end
 
     def getArtists
@@ -168,28 +166,10 @@ class Subserver
 
     end
 
-    def queueSong(song, artist = "", album = "")
-
-        sid = getSong(song, artist, album)
-
-        if sid == nil
-            return
-        end
-        
-        enqueue(sid, song)
-
-    end
-
-    def enqueue(songid, title)
-        # method to get songs
+		#returns the streaming URL for the song
+    def songUrl(songid)
         stream = "stream.view"
-        nurl = buildURL(stream, "id", songid)
-        @qurl << nurl
-        @queue << title
-    end
-
-    def queue(query, delim = nil)
-# will search for query, queue what the user wants
+        buildURL(stream, "id", songid)
     end
 
     def queueAlbum(album, artist = "")
@@ -244,32 +224,8 @@ class Subserver
             return
         end
         
-        return whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"}
+        return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"} )
         
-    end
-    
-    def play(song = "", artist = "", album = "")
-
-        if song.empty?
-            until @qurl.empty? do
-                url = @qurl.pop
-                @queue.pop
-                system("mpc add \"#{url}\"")
-                system("mpc play")
-            end
-            return
-        end
-
-        sid = getSong(song, artist, album)
-
-        method = "stream.view"
-
-        url = buildURL(method, "id", sid)
-
-        system("mpc add \"#{url}\"")
-        system("mpc play")
-
-        puts "Thanks!"
     end
 
 end

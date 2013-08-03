@@ -1,128 +1,70 @@
 
-require './subserver'
+require './Subsonic'
+require './Mpc'
 
 class Subcl
 
-    def initialize
-        @ss = Subserver.new  
-        repl
-    end
+	def initialize
+		@subsonic = Subsonic.new	
+		@player = Mpc.new
+	end
 
-    def repl
-        puts "Subcl! Command-line Subsonic."
-        #puts "Type 'help' for help"
-        print "> "
-        until (line = gets.chomp).eql? "quit"
-            spl = line.split(' ')
+	def playSong(name)
+		@player.clear
+		queueSong(name)
+		@player.play
+	end
 
-            if spl[0].eql? "qs"
-                song = ""
-                # if we didn't get a value
-                if spl.length == 1
-                    print "[Song title]: "
-                    song = gets.chomp
-                else
-                    song = spl[1,spl.length-1].join(' ')
-                end
+	def playAlbum(name)
+		@player.clear
+		queueAlbum(name)
+		@player.play
+	end
 
-                # if we still didn't get a value
-                unless song.eql? ""
-                    @ss.queueSong(song)
-                end
-            elsif spl[0].eql? "qa"
-                album = ""
-                # if we didn't get a value
-                if spl.length == 1
-                    print "[Album title]: "
-                        album = gets.chomp
-                else
-                    album = spl[1,spl.length-1].join(' ')
-                end
+	def playArtist(name)
+		@player.clear
+		queueArtist(name)
+		@player.play
+	end
 
-                # if we still didn't get a value
-                unless album.eql? ""
-                    @ss.queueAlbum(album)
-                end
-            elsif spl[0].eql? "artists"
-                @ss.getArtists
-            elsif spl[0].eql? "albums"
-                artist = ""
-                if spl.length == 1
-                    print "[Artist]: "
-                    artist = gets.chomp
-                else
-                    artist = spl[1,spl.length-1].join(' ')
-                end
+	def queueArtist(name)
+		@subsonic.artist(name).albums.each do |album|
+			album.songs.each do |song|
+				@player.add(song)
+			end
+		end
+	end
 
-                unless artist.eql? ""
-                    @ss.getAlbums(artist)
-                end
-            elsif spl[0].eql? "queue"
-                @ss.showQueue
-            elsif spl[0].eql? "play"
-                @ss.play
-            elsif spl[0] != "quit" and spl[0] != nil
-                puts "#{spl[0]}: command unrecognized"
-            end
-            
-            if spl[0] != "quit"
-                print "> "
-            end
-        end
-        puts "Bye!"
-    end
+	def queueAlbum(name)
+		@subsonic.album(name).songs.each do |song|
+			@player.add(song)
+		end
+	end
+
+	def queueSong(name)
+		@player.add(
+			@subsonic.getSong(name)
+		)
+	end
+
 end
+
+def usage
+	puts "USAGE"
+	exit
+end
+
+
 
 subcl = Subcl.new
 
-=begin
-subserver = Subserver.new
 
-puts "Subcl! Command-line Subsonic."
-puts "Type 'help' for help"
-print "> "
-until (line = gets.chomp).eql? "quit"
-    spl = line.split(' ')
+usage if ARGV.size < 3
 
-    if spl[0].eql? "qs"
-        song = ""
-        # if we didn't get a value
-        if spl.length == 1
-            print "[Song title]: "
-            song = gets
-        else
-            song = spl.index[1,spl.length-1].join(' ')
-        end
+func = ARGV[0] + ARGV[1].capitalize
 
-        # if we still didn't get a value
-        unless song.eql? "\n"
-            subserver.queueSong(song)
-        end
-    elsif spl[0].eql? "qa"
-        album = ""
-        # if we didn't get a value
-        if spl.length == 1
-            print "[Album title]: "
-            album = gets
-        else
-            album = spl.index[1,spl.length-1].join(' ')
-        end
+song = ARGV[2,ARGV.length-1].join(" ")
 
-        # if we still didn't get a value
-        unless album.eql? ""
-            subserver.queueAlbum(album)
-        end
-    elsif spl[0].eql? "artists"
-        subserver.getArtists
-    elsif spl[0].eql? "play"
-        subserver.play
-    elsif spl[0] != "quit"
-        puts "#{spl[0]}: command unrecognized"
-    end
+usage unless subcl.respond_to? func
 
-    if spl[0] != "quit"
-        print "> "
-    end
-end
-puts "Bye!"
-=end
+subcl.send(func, song)
