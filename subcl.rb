@@ -9,6 +9,11 @@ class Subcl
 		@player = Mpc.new
 	end
 
+	def albumart(v)
+		current = @player.current
+		puts @subsonic.albumart() unless current.empty?
+	end
+
 	def playSong(name)
 		@player.clear
 		queueSong(name)

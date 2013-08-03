@@ -1,7 +1,7 @@
 
 class Mpc
 	def mpccall(cmd)
-		call = "/usr/local/bin/mpc #{cmd}"
+		call = "mpc #{cmd}"
 		unless system(call)
 			print "MPC call error: #{$?}\n"
 		end
@@ -18,6 +18,10 @@ class Mpc
 
 	def clear
 		mpccall("clear")
+	end
+
+	def current
+		`mpc --format '%file%' current`
 	end
 
 	#TODO use method_missing for clear, play and everything that will come

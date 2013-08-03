@@ -1,6 +1,7 @@
 require 'net/http'
 require 'rexml/document'
 require 'thread'
+require 'cgi'
 include REXML
 
 require_relative 'configs'
@@ -297,6 +298,12 @@ class Subsonic
 
 		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"} )
 
+	end
+
+	def albumart(streamUrl)
+		raise ArgumentError if streamUrl.empty?
+		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
+		buildURL2('getCoverArt.view', {:id => id})
 	end
 
 end
