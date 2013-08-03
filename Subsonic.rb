@@ -121,9 +121,12 @@ class Subsonic
 		search(name, :song)
 	end
 
-	#returns the streaming URL for the song
+	#returns the streaming URL for the song, including basic auth
 	def songUrl(songid)
-		buildUrl('stream.view', {:id => songid})
+		uri = buildUrl('stream.view', {:id => songid})
+		uri.user = @configs.uname
+		uri.password = @configs.pword
+		uri
 	end
 
 	#returns the albumart URL for the song
@@ -199,21 +202,25 @@ class Subsonic
 		end
 
 		def query(method, params)
-			url = buildUrl(method, params)
-			data = Net::HTTP.get_response(URI.parse(url)).body
-			Document.new(data)
+			uri = buildUrl(method, params)
+			req = Net::HTTP::Get.new(uri.request_uri)
+			req.basic_auth(@configs.uname, @configs.pword)
+			res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+				http.request(req)
+			end
+			Document.new(res.body)
 		end
 
 		def buildUrl(method, params)
-			params[:u] = @configs.uname
-			params[:p] = @configs.pword
+			#params[:u] = @configs.uname
+			#params[:p] = @configs.pword
 			params[:v] = @configs.version
 			params[:c] = @configs.appname
 			query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
-			url ="#{@configs.server}/rest/#{method}?#{query}"
-			puts "url2: #{url}"
-			url
+			uri = URI("#{@configs.server}/rest/#{method}?#{query}")
+			puts "url2: #{uri}"
+			uri
 		end
 
 end
