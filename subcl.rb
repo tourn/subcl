@@ -34,7 +34,7 @@ class Subcl
 
 	def queueArtist(name)
 		@subsonic.artistSongs(name).each do |song|
-			puts "adding #{song}"
+			#puts "adding #{song}"
 			@player.add(song)
 		end
 	end
@@ -54,7 +54,7 @@ class Subcl
 	def searchSong(name)
 		songs = @subsonic.songs(name)
 		if(songs.size == 0)
-			puts "No matching song"
+			$stderr.puts "No matching song"
 		else
 			songs.each do |song|
 				puts "#{song[:title]} by #{song[:artist]} on #{song[:album]}"
@@ -65,7 +65,7 @@ class Subcl
 	def searchAlbum(name)
 		albums = @subsonic.albums(name)
 		if(albums.size == 0)
-			puts "No matching album"
+			$stderr.puts "No matching album"
 		else
 			albums.each do |album|
 				puts "#{album[:name]} by #{album[:artist]}"
@@ -76,7 +76,7 @@ class Subcl
 	def searchArtist(name)
 		artists = @subsonic.artists(name)
 		if(artists.size == 0)
-			puts "No matching artist"
+			$stderr.puts "No matching artist"
 		else
 			artists.each do |artist|
 				puts "#{artist[:name]}"

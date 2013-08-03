@@ -3,7 +3,7 @@ class Mpc
 	def mpccall(cmd)
 		call = "mpc #{cmd}"
 		unless system(call)
-			print "MPC call error: #{$?}\n"
+			$stderr.puts "MPC call error: #{$?}"
 		end
 
 	end

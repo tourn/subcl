@@ -12,7 +12,7 @@ class Subsonic
 		begin
 			@configs = Configs.new
 		rescue => e
-			puts e.message
+			$stderr.puts e.message
 			exit
 		end
 	end
@@ -23,11 +23,11 @@ class Subsonic
 		searchResults = search(name, :song)
 
 		if searchResults.length.zero?
-			puts "No matching song"
+			$stderr.puts "No matching song"
 			return
 		end
 
-		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"} )
+		return songUrl( whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"} )
 
 	end
 
@@ -38,11 +38,11 @@ class Subsonic
 		searchResults = search(album, :album)
 
 		if searchResults.length.zero?
-			puts "No matching album"
+			$stderr.puts "No matching album"
 			return
 		end
 
-		albumId = whichDidYouMean(searchResults) {|e| puts "#{e[:name]}"}
+		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
 
 		songs = []
 		doc = query('getMusicDirectory.view', {:id => albumId})
@@ -59,11 +59,11 @@ class Subsonic
 		searchResults = search(name, :artist)
 
 		if searchResults.length.zero?
-			puts "No matching artist"
+			$stderr.puts "No matching artist"
 			return
 		end
 
-		artistId = whichDidYouMean(searchResults) {|e| puts "#{e[:name]}"}
+		artistId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
 
 		songs = []
 		doc = query('getArtist.view', {:id => artistId})
@@ -79,7 +79,7 @@ class Subsonic
 
 	def whichDidYouMean(array)
 
-		puts "wdym: #{array.size} elements"
+		#puts "wdym: #{array.size} elements"
 
 		# only one value, return it
 		return array.first[:id] if array.length == 1
@@ -138,7 +138,7 @@ class Subsonic
 
 	#should the need arise, this outputs the album art as binary
 	def albumart
-		puts "Not yet implemented"
+		$stderr.puts "Not yet implemented"
 	end
 
 	private
@@ -214,12 +214,12 @@ class Subsonic
 		def buildUrl(method, params)
 			#params[:u] = @configs.uname
 			#params[:p] = @configs.pword
-			params[:v] = @configs.version
+			params[:v] = @configs.proto_version
 			params[:c] = @configs.appname
 			query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
 			uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-			puts "url2: #{uri}"
+			#puts "url2: #{uri}"
 			uri
 		end
 

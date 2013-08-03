@@ -3,15 +3,15 @@ class Configs
 	attr_reader :server
 	attr_reader :uname
 	attr_reader :pword
-	attr_reader :version
+	attr_reader :proto_version
 	attr_reader :max_search_results
 	attr_reader :appname
-
-
+	attr_reader :app_version
 
 	def initialize
-		#subsonic protocol version
-		@version = '1.9.0'
+		@app_version = '1.0'
+		#subsonic API protocol version
+		@proto_version = '1.9.0'
 		@appname = 'subcl'
 		@max_search_results = 20 #default value
 
