@@ -104,8 +104,11 @@ OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Commands"
   opts.separator "	search[-song|-album|-artist] <pattern> - list to terminal"
+  opts.separator "	ss|sl|sr <pattern> - list to terminal"
   opts.separator "	play[-song|-album|-artist] <pattern> - clear queue and immediately start playing"
+  opts.separator "	ps|pl|pr <pattern> - clear queue and immediately start playing"
   opts.separator "	queue[-song|-album|-artist] <pattern> - add to end of queue"
+  opts.separator "	qs|ql|qr <pattern> - add to end of queue"
   opts.separator "	albumart-url - print url of albumart to terminal"
   opts.separator ""
   opts.separator "Options"
@@ -137,48 +140,36 @@ song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes a
 
 #this hurts my eyes AND my heart
 case ARGV[0].downcase
-when 'play'
-	subcl.playAny(song)
 when 'play-song'
 	subcl.playSong(song)
 when 'play-artist'
 	subcl.playArtist(song)
 when 'play-album'
 	subcl.playAlbum(song)
-when 'queue'
-	subcl.queueAny(song)
 when 'queue-song'
 	subcl.queueSong(song)
 when 'queue-artist'
 	subcl.queueArtist(song)
 when 'queue-album'
 	subcl.queueAlbum(song)
-when 'search'
-	subcl.searchAny(song)
 when 'search-song'
 	subcl.searchSong(song)
 when 'search-artist'
 	subcl.searchArtist(song)
 when 'search-album'
 	subcl.searchAlbum(song)
-when 'p'
-	subcl.playAny(song)
 when 'ps'
 	subcl.playSong(song)
 when 'pr'
 	subcl.playArtist(song)
 when 'pl'
 	subcl.playAlbum(song)
-when 'q'
-	subcl.queueAny(song)
 when 'qs'
 	subcl.queueSong(song)
 when 'qr'
 	subcl.queueArtist(song)
 when 'ql'
 	subcl.queueAlbum(song)
-when 's'
-	subcl.searchAny(song)
 when 'ss'
 	subcl.searchSong(song)
 when 'sr'
@@ -188,6 +179,5 @@ when 'sl'
 when "albumart-url"
 	puts subcl.albumartUrl
 else
-	puts "YOU FAILED!"
 	puts usage
 end
