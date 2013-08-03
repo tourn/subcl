@@ -33,21 +33,21 @@ class Subcl
 	end
 
 	def queueArtist(name)
-		@subsonic.getArtistSongs(name).each do |song|
+		@subsonic.artistSongs(name).each do |song|
 			puts "adding #{song}"
 			@player.add(song)
 		end
 	end
 
 	def queueAlbum(name)
-		@subsonic.getAlbumSongs(name).each do |song|
+		@subsonic.albumSongs(name).each do |song|
 			@player.add(song)
 		end
 	end
 
 	def queueSong(name)
 		@player.add(
-			@subsonic.getSong(name)
+			@subsonic.song(name)
 		)
 	end
 

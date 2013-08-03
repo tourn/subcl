@@ -59,7 +59,7 @@ class Subsonic
 
 	end
 
-	def getAlbumSongs(album, artist = "")
+	def albumSongs(album, artist = "")
 
 		searchResults = search(album, "album")
 
@@ -88,7 +88,7 @@ class Subsonic
 		songs
 	end
 
-	def getArtistSongs(name)
+	def artistSongs(name)
 		searchResults = search3(name, :artist)
 
 		if searchResults.length.zero?
@@ -288,7 +288,7 @@ class Subsonic
 		end
 	end
 
-	def getSong(song, artist = "", album = "")
+	def song(song)
 		searchResults = search(song, "song")
 
 		if searchResults.length.zero?
