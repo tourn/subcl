@@ -112,12 +112,12 @@ class Subsonic
 	end
 
 	#returns all albums matching the pattern
-	def albums
+	def albums(name)
 		search(name, :album)
 	end
 
 	#returns all songs matching the pattern
-	def songs
+	def songs(name)
 		search(name, :song)
 	end
 
