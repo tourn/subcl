@@ -1,46 +1,48 @@
-Subcl! a command-line frontend for [Subsonic][sub]
+Subcl! a command-line client for [Subsonic][sub]
 ==================================================
 
+Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies heavily on mpc, so much in fact, that you still have to use the mpc command for playback controls. Subcl only feeds mpd's playlist and keeps no track of it by itself.
+If the song/album/artist you enter is unique, subcl will immediately return. If not, subcl will list all possible matches and ask you for the correct one interactively.
+
+Requirements
+------------
+- Ruby 1.8+
+- mpd
+- mpc
+
+Setup
+-----
+.subcl file in your home directory (~/.subcl) contains:
+	server &lt;name of your subsonic server>
+	username &lt;username for subsonic>
+	password &lt;password for subsonic>
+	max_search_results &lt;maximum search results, optional, default 20>
+
+Currently supported commands
+----------------------------
+	search: print entries to console
+	sr | search aRtists [pattern]
+	sl | search aLbums [pattern]
+	ss | search songs [pattern]
+
+	play: clear play queue and immediately start playing this
+	pr | play aRtist [pattern]
+	pl | play aLbum [pattern]
+	ps | play song [pattern]
+
+	queue: add this to the end of the play queue
+	qr | queue aRtist [pattern]
+	ql | queue aLbum [pattern]
+	qs | queue song [pattern]
+
+Issues
+------
+- no support for HTTPS (does mpd even support this?)
+
+Coming up
+---------
+- interactive library browser using ncurses
+- configurable verbosity
+- possibility to switch interactiveness off, for scripting
+
 [sub]: http://subsonic.org
-
-Requires ruby 1.8+ and mplayer
-
-How to use:
------------
- - .subcl file in your home directory (~/.subcl) contains:
-   1. "server &lt;name of your subsonic server>"
-   2. "username &lt;username for subsonic>"
-   3. "password &lt;password for subsonic>"
- - currently supported commands:
-   1. "artists" -- lists all artists available
-   2. "albums &lt;artist name>" -- lists all albums for a given artist
-   3. "qs &lt;song name>" -- queues a song
-   4. "qa &lt;album name>" -- queues an album
-   5. "queue" -- show the queue
-   6. "play" -- plays each song in the queue (in order)
-
-planned commands
-----------------
-lr list aRtists [pattern]
-ll list aLbums [pattern]
-ls list songs [pattern]
-
-pr play aRtist [pattern]
-pl play aLbum [pattern]
-ps play song [pattern]
-
-qr queue aRtist [pattern]
-ql queue aLbum [pattern]
-qs queue song [pattern]
-
-
-
-
-Issues and TODO:
-----------------
- - convert to using basic auth
- - more functionality (playing song/album on the fly)
- - modifying queue on the fly
- - support for other music players (cvlc, etc)
- - use mplayer, others in background mode (with sockets)
- - use subcl through socket
