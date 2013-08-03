@@ -1,6 +1,6 @@
 
-require './Subsonic'
-require './Mpc'
+require_relative './Subsonic'
+require_relative './Mpc'
 
 class Subcl
 

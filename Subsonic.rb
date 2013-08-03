@@ -3,7 +3,7 @@ require 'rexml/document'
 require 'thread'
 include REXML
 
-require './configs'
+require_relative 'configs'
 
 class Subsonic
 
