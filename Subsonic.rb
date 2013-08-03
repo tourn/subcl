@@ -124,16 +124,16 @@ class Subsonic
 	#returns the streaming URL for the song, including basic auth
 	def songUrl(songid)
 		uri = buildUrl('stream.view', {:id => songid})
-		uri.user = @configs.uname
-		uri.password = @configs.pword
-		uri
+		addBasicAuth(uri)
 	end
 
 	#returns the albumart URL for the song
 	def albumartUrl(streamUrl)
 		raise ArgumentError if streamUrl.empty?
 		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
-		buildUrl('getCoverArt.view', {:id => id})
+		addBasicAuth(
+			buildUrl('getCoverArt.view', {:id => id})
+		)
 	end
 
 	#should the need arise, this outputs the album art as binary
@@ -221,6 +221,13 @@ class Subsonic
 			uri = URI("#{@configs.server}/rest/#{method}?#{query}")
 			#puts "url2: #{uri}"
 			uri
+		end
+
+		#adds the basic auth parameters from the config to the URI
+		def addBasicAuth(uri)
+			uri.user = @configs.uname
+			uri.password = @configs.pword
+			return uri
 		end
 
 end

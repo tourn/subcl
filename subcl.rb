@@ -1,6 +1,6 @@
-
 require_relative './Subsonic'
 require_relative './Mpc'
+require 'optparse'
 
 class Subcl
 
@@ -9,9 +9,9 @@ class Subcl
 		@player = Mpc.new
 	end
 
-	def albumartUrl(v)
+	def albumartUrl
 		current = @player.current
-		puts @subsonic.albumartUrl() unless current.empty?
+		puts @subsonic.albumartUrl(current) unless current.empty?
 	end
 
 	def playSong(name)
@@ -86,10 +86,6 @@ class Subcl
 
 end
 
-def usage
-	puts "USAGE"
-	exit
-end
 
 
 #don't throw a huge stacktrace
@@ -98,15 +94,72 @@ trap("INT") {
  exit 
 }
 
+
+options = {}
+opt_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: subcl [options] command"
+  opts.separator ""
+  opts.separator "Commands"
+  opts.separator "	search[-song|-album|-artist] <pattern> - list to terminal"
+  opts.separator "	play[-song|-album|-artist] <pattern> - clear queue and immediately start playing"
+  opts.separator "	queue[-song|-album|-artist] <pattern> - add to end of queue"
+  opts.separator "	albumart-url - print url of albumart to terminal"
+  opts.separator ""
+  opts.separator "Options"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+  opts.on("--version", "Print version information") do |v|
+		puts Configs.new.app_version
+		exit
+  end
+end.parse!
+
 subcl = Subcl.new
 
+case ARGV[0].downcase
+#way too complicated command-parsing ahead
+when /^(ss|sr|sl|ps|pr|pl|qs|qr|ql|s|p|q)|(search|play|queue)(-song|-album|-artist)?$/
+	song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
+	if $1 #short command
+		case $1[0]
+		when "s"
+			cmd = "search"
+		when "p"
+			cmd = "play"
+		when "q"
+			cmd = "query"
+		end
 
-usage if ARGV.size < 3
+		case $1[1]
+		when "s"
+			object = "song"
+		when "r"
+			object = "artist"
+		when "l"
+			object = "album"
+		end
 
-func = ARGV[0] + ARGV[1].capitalize
+		puts "short command parsed:"
+		p cmd
+		p object
+	end
 
-song = ARGV[2,ARGV.length-1].join(" ")
+	cmd ||= $2
+	object ||= $3
 
-usage unless subcl.respond_to? func
+	p cmd
+	p object
 
-subcl.send(func, song)
+	if object.nil? #no word after the dash in long-command
+		subcl.send(cmd, song)
+	else
+		func = cmd + object.sub(/^-/,'').capitalize
+		subcl.send(func, song)
+	end
+when "albumart-url"
+	puts subcl.albumartUrl
+else
+	puts opt_parser
+end
