@@ -17,70 +17,35 @@ class Subsonic
 		end
 	end
 
-	def getArtists
-		# method to get the artists
-		method = "getIndexes.view"
-
-		url = buildURL(method)
-
-		data = Net::HTTP.get_response(URI.parse(url)).body
-
-		doc = Document.new(data)
-
-		doc.elements.each('subsonic-response/indexes/index/artist') do |artist|
-			puts artist.attributes["name"]
-		end
-
-	end
-
-	def getAlbums(artist)
-
-		searchResults = search(artist, "artist")
+	#returns a song streaming url for the given name
+	#on multiple matches, the user is asked interactively for the wanted match
+	def song(name)
+		searchResults = search(name, :song)
 
 		if searchResults.length.zero?
-			puts "No albums found by artist: " + artist
+			puts "No matching song"
 			return
 		end
 
-		aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[1]}"}
-
-		# method to grab albums
-		method = "getMusicDirectory.view"
-
-		url = buildURL(method, "id", aid)
-
-		data = Net::HTTP.get_response(URI.parse(url)).body
-
-		doc = Document.new(data)
-
-		doc.elements.each('subsonic-response/directory/child') do |album|
-			puts album.attributes["title"]
-		end
+		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[:title]} by #{e[:artist]}"} )
 
 	end
 
-	def albumSongs(album, artist = "")
+	#returns an array of song streaming urls for the given album name
+	#on multiple matches, the user is asked interactively for the wanted match
+	def albumSongs(album)
 
-		searchResults = search(album, "album")
+		searchResults = search(album, :album)
 
 		if searchResults.length.zero?
 			puts "No matching album"
 			return
 		end
 
-		aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[1]}"}
-
-		# method to get songs
-		method = "getMusicDirectory.view"
-
-		url = buildURL(method, "id", aid)
-
-		data = Net::HTTP.get_response(URI.parse(url)).body
-
-		doc = Document.new(data)
+		albumId = whichDidYouMean(searchResults) {|e| puts "#{e[:name]}"}
 
 		songs = []
-
+		doc = query('getMusicDirectory.view', {:id => albumId})
 		doc.elements.each('subsonic-response/directory/child') do |song|
 			songs << songUrl(song.attributes["id"])
 		end
@@ -88,25 +53,23 @@ class Subsonic
 		songs
 	end
 
+	#returns an array of song streaming urls for the given artist name
+	#on multiple matches, the user is asked interactively for the wanted match
 	def artistSongs(name)
-		searchResults = search3(name, :artist)
+		searchResults = search(name, :artist)
 
 		if searchResults.length.zero?
 			puts "No matching artist"
 			return
 		end
 
-		rid = whichDidYouMean(searchResults) {|e| puts "#{e}"}
+		artistId = whichDidYouMean(searchResults) {|e| puts "#{e[:name]}"}
 
-		url = buildURL('getArtist.view', 'id', rid)
-		data = Net::HTTP.get_response(URI.parse(url)).body
-		doc = Document.new(data)
 
 		songs = []
+		doc = query('getArtist.view', {:id => artistId})
 		doc.elements.each('subsonic-response/artist/album') do |album|
-			url = buildURL('getAlbum.view', 'id', album.attributes["id"])
-			data = Net::HTTP.get_response(URI.parse(url)).body
-			doc = Document.new(data)
+			doc = query('getAlbum.view', {:id => album.attributes['id']})
 			doc.elements.each('subsonic-response/album/song') do |song|
 				songs << songUrl(song.attributes["id"])
 			end
@@ -115,21 +78,20 @@ class Subsonic
 		songs
 	end
 
-	def whichDidYouMean(hash)
+	def whichDidYouMean(array)
+
+		puts "wdym: #{array.size} elements"
 
 		# only one value, return it
-		if hash.length == 1
-			hash.each_key { |key| return key }
-		end
+		return array.first[:id] if array.length == 1
 
-		hlocal = {}
+		choices = {}
 		i = 1
 
-		hash.each do |key, value|
-			hlocal[i] = key
-			#puts "[#{i}] #{value}"
+		array.each do |elem|
+			choices[i] = elem
 			print "[#{i}] " 
-			yield(value)
+			yield(elem)
 			i = i + 1
 		end
 
@@ -141,65 +103,76 @@ class Subsonic
 			choice = $stdin.gets
 		end
 
-		return hlocal[choice.to_i]
+		return choices[choice.to_i][:id]
 
 	end
 
-	def search(query, delim = nil)
-		method = "search2.view"
-		url = buildURL(method, "query", URI.escape(query))
-		data = Net::HTTP.get_response(URI.parse(url)).body
-		doc = Document.new(data)
+	def search(query, type)
+		out = []
 
-		result_hash = {} # map to store results
+		params = {
+			:query => query, 
+			:songCount => 0, 
+			:albumCount => 0, 
+			:artistCount => 0,
+		}
 
-		if delim.eql? "artist" or delim.eql? nil
-			doc.elements.each('subsonic-response/searchResult2/artist') do |artist|
-				result_hash[artist.attributes["id"]] = artist.attributes["name"]
-			end
-		end
-
-		if delim.eql? "album" or delim.eql? nil
-			doc.elements.each('subsonic-response/searchResult2/album') do |album|
-				result_hash[album.attributes["id"]] = [album.attributes["title"],album.attributes["artist"]]
-			end
-		end
-
-		if delim.eql? "song" or delim.eql? nil
-			doc.elements.each('subsonic-response/searchResult2/song') do |song|
-				result_hash[song.attributes["id"]] = [song.attributes["title"], song.attributes["album"], song.attributes["artist"]]
-			end
-		end
-
-		result_hash
-	end
-
-	def search3(query, delim)
-		method = "search3.view"
-
-		result_hash = {} # map to store results
-
-		case delim
+		case type
 		when :artist
-			doc = query(method, {:query => query, :songCount => 0, :albumCount => 0})
-			doc.elements.each('subsonic-response/searchResult3/artist') do |artist|
-				result_hash[artist.attributes["id"]] = artist.attributes["name"]
-			end
+			params[:artistCount] = @configs.max_search_results
 		when :album
+			params[:albumCount] = @configs.max_search_results
 		when :song
+			params[:songCount] = @configs.max_search_results
 		when :any
+			#XXX or do we now use max/3 for each?
+			params[:songCount] = @configs.max_search_results
+			params[:albumCount] = @configs.max_search_results
+			params[:artistCount] = @configs.max_search_results
 		end
 
-		result_hash
+		doc = query('search3.view', params)
+
+		#read artists
+		doc.elements.each('subsonic-response/searchResult3/artist') do |artist|
+			out << {
+				:id => artist.attributes["id"],
+				:type => :artist,
+				:name => artist.attributes["name"]
+			}
+		end
+
+		#read albums
+		doc.elements.each('subsonic-response/searchResult3/album') do |album|
+			out << {
+				:id => album.attributes["id"],
+				:type => :album,
+				:name => album.attributes["name"],
+				:artist => album.attributes["artist"]
+			}
+		end
+
+		#read songs
+		doc.elements.each('subsonic-response/searchResult3/song') do |song|
+			out << {
+				:id => song.attributes["id"],
+				:type => :song,
+				:title => song.attributes["title"],
+				:artist => song.attributes["artist"],
+				:album => song.attributes["album"]
+			}
+		end
+
+		out
 	end
 
 	def query(method, params)
-		url = buildURL2(method, params)
+		url = buildUrl(method, params)
 		data = Net::HTTP.get_response(URI.parse(url)).body
 		Document.new(data)
 	end
 
-	def buildURL2(method, params)
+	def buildUrl(method, params)
 		params[:u] = @configs.uname
 		params[:p] = @configs.pword
 		params[:v] = @configs.version
@@ -211,99 +184,22 @@ class Subsonic
 		url
 	end
 
-	def buildURL(method, *params)
-
-		if !(params.length % 2).zero?
-			raise RangeError, "params must have an even number of values"
-		end
-
-		url = @configs.server + "/rest/" + method + "?u=" + @configs.uname + "&p=" + @configs.pword + "&v=" + @configs.version + "&c=" + @configs.appname
-
-		# get the length of the variable array
-		l = params.length
-
-		for i in 0..(l/2 - 1) do
-			# grab the key and value to add to the url string
-			key = params[2 * i]
-			value = params[2 * i + 1]
-
-			# append them on the string
-			url = url + "\&" + key + "=" + value
-		end
-
-		#debug
-		puts "query #{url}"
-
-		url
-
-	end
-
 	#returns the streaming URL for the song
 	def songUrl(songid)
-		stream = "stream.view"
-		buildURL(stream, "id", songid)
+		buildUrl('stream.view', {:id => songid})
 	end
 
-	def queueAlbum(album, artist = "")
-
-		searchResults = search(album, "album")
-
-		if searchResults.length.zero? and not artist.eql? ""
-			puts "No albums found by artist: " + artist
-			return
-		elsif searchResults.length.zero?
-			puts album + ": album not found"
-			return
-		end
-
-		aid = whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[1]}"}
-
-		# method to get songs
-		method = "getMusicDirectory.view"
-
-		url = buildURL(method, "id", aid)
-
-		data = Net::HTTP.get_response(URI.parse(url)).body
-
-		doc = Document.new(data)
-
-		doc.elements.each('subsonic-response/directory/child') do |song|
-			enqueue(song.attributes["id"], song.attributes["title"])
-		end
-	end
-
-
-	def showQueue
-		tmpQueue = Queue.new
-
-		until @queue.empty? do
-			url = @queue.pop
-			puts url
-			tmpQueue << url
-		end
-
-		until tmpQueue.empty? do 
-			url = tmpQueue.pop
-			@queue << url
-		end
-	end
-
-	def song(song)
-		searchResults = search(song, "song")
-
-		if searchResults.length.zero?
-			puts "Song not found: " + song
-			return
-		end
-
-		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[0]} by #{e[2]} (#{e[1]})"} )
-
-	end
-
-	def albumart(streamUrl)
+	#returns the albumart URL for the song
+	def albumartUrl(streamUrl)
 		raise ArgumentError if streamUrl.empty?
 		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
-		buildURL2('getCoverArt.view', {:id => id})
+		buildUrl('getCoverArt.view', {:id => id})
 	end
+
+	#should the need arise, this outputs the album art as binary
+	def albumart
+		puts "Not yet implemented"
+	end
+
 
 end

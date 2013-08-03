@@ -9,9 +9,9 @@ class Subcl
 		@player = Mpc.new
 	end
 
-	def albumart(v)
+	def albumartUrl(v)
 		current = @player.current
-		puts @subsonic.albumart() unless current.empty?
+		puts @subsonic.albumartUrl() unless current.empty?
 	end
 
 	def playSong(name)

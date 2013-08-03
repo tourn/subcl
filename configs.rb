@@ -26,12 +26,16 @@ class Configs
                 @uname = spl[1]
             elsif spl[0].eql? "password"
                 @pword = spl[1]
+            elsif spl[0].eql? "max_search_results"
+                @pword = spl[1]
             end
         end
 
         if @server == nil or @uname == nil or @pword == nil
             raise "Incorrect configuration file"
         end
+
+				@max_search_results = 50 if @max_search_results == nil
 
     end
 
@@ -52,23 +56,11 @@ class Configs
         end
     end
 
-    def server
-        @server
-    end
+		attr_reader :server
+		attr_reader :uname
+		attr_reader :pword
+		attr_reader :version
+		attr_reader :max_search_results
+		attr_reader :appname
 
-    def uname
-        @uname
-    end
-
-    def pword
-        @pword
-    end
-
-    def version
-        @version
-    end
-
-    def appname
-        @appname
-    end
 end
