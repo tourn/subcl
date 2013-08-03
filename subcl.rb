@@ -96,7 +96,10 @@ trap("INT") {
 
 
 options = {}
-opt_parser = OptionParser.new do |opts|
+
+#no idea how to get this variable from outside, so we'll just set it in the loop
+usage = nil
+OptionParser.new do |opts|
   opts.banner = "Usage: subcl [options] command"
   opts.separator ""
   opts.separator "Commands"
@@ -107,59 +110,84 @@ opt_parser = OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Options"
 
+	usage = opts
+
   opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
     options[:verbose] = v
   end
-  opts.on("--version", "Print version information") do |v|
+  opts.on("--version", "Print version information") do
 		puts Configs.new.app_version
 		exit
   end
+	opts.on('-h', '--help', 'Display this screen') do
+		puts opts
+		exit
+	end
+
 end.parse!
 
 subcl = Subcl.new
 
+unless ARGV.size >= 2
+	puts usage
+	exit
+end
+
+song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
+
+#this hurts my eyes AND my heart
 case ARGV[0].downcase
-#way too complicated command-parsing ahead
-when /^(ss|sr|sl|ps|pr|pl|qs|qr|ql|s|p|q)|(search|play|queue)(-song|-album|-artist)?$/
-	song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
-	if $1 #short command
-		case $1[0]
-		when "s"
-			cmd = "search"
-		when "p"
-			cmd = "play"
-		when "q"
-			cmd = "query"
-		end
-
-		case $1[1]
-		when "s"
-			object = "song"
-		when "r"
-			object = "artist"
-		when "l"
-			object = "album"
-		end
-
-		puts "short command parsed:"
-		p cmd
-		p object
-	end
-
-	cmd ||= $2
-	object ||= $3
-
-	p cmd
-	p object
-
-	if object.nil? #no word after the dash in long-command
-		subcl.send(cmd, song)
-	else
-		func = cmd + object.sub(/^-/,'').capitalize
-		subcl.send(func, song)
-	end
+when 'play'
+	subcl.playAny(song)
+when 'play-song'
+	subcl.playSong(song)
+when 'play-artist'
+	subcl.playArtist(song)
+when 'play-album'
+	subcl.playAlbum(song)
+when 'queue'
+	subcl.queueAny(song)
+when 'queue-song'
+	subcl.queueSong(song)
+when 'queue-artist'
+	subcl.queueArtist(song)
+when 'queue-album'
+	subcl.queueAlbum(song)
+when 'search'
+	subcl.searchAny(song)
+when 'search-song'
+	subcl.searchSong(song)
+when 'search-artist'
+	subcl.searchArtist(song)
+when 'search-album'
+	subcl.searchAlbum(song)
+when 'p'
+	subcl.playAny(song)
+when 'ps'
+	subcl.playSong(song)
+when 'pr'
+	subcl.playArtist(song)
+when 'pl'
+	subcl.playAlbum(song)
+when 'q'
+	subcl.queueAny(song)
+when 'qs'
+	subcl.queueSong(song)
+when 'qr'
+	subcl.queueArtist(song)
+when 'ql'
+	subcl.queueAlbum(song)
+when 's'
+	subcl.searchAny(song)
+when 'ss'
+	subcl.searchSong(song)
+when 'sr'
+	subcl.searchArtist(song)
+when 'sl'
+	subcl.searchAlbum(song)
 when "albumart-url"
 	puts subcl.albumartUrl
 else
-	puts opt_parser
+	puts "YOU FAILED!"
+	puts usage
 end
