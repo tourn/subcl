@@ -27,7 +27,7 @@ class Subsonic
 			return
 		end
 
-		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[:title]} by #{e[:artist]}"} )
+		return songUrl( whichDidYouMean(searchResults) {|e| puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"} )
 
 	end
 
@@ -64,7 +64,6 @@ class Subsonic
 		end
 
 		artistId = whichDidYouMean(searchResults) {|e| puts "#{e[:name]}"}
-
 
 		songs = []
 		doc = query('getArtist.view', {:id => artistId})
@@ -107,40 +106,73 @@ class Subsonic
 
 	end
 
-	def search(query, type)
-		out = []
+	#returns all artists matching the pattern
+	def artists(name)
+		search(name, :artist)
+	end
 
-		params = {
-			:query => query, 
-			:songCount => 0, 
-			:albumCount => 0, 
-			:artistCount => 0,
-		}
+	#returns all albums matching the pattern
+	def albums
+		search(name, :album)
+	end
 
-		case type
-		when :artist
-			params[:artistCount] = @configs.max_search_results
-		when :album
-			params[:albumCount] = @configs.max_search_results
-		when :song
-			params[:songCount] = @configs.max_search_results
-		when :any
-			#XXX or do we now use max/3 for each?
-			params[:songCount] = @configs.max_search_results
-			params[:albumCount] = @configs.max_search_results
-			params[:artistCount] = @configs.max_search_results
-		end
+	#returns all songs matching the pattern
+	def songs
+		search(name, :song)
+	end
 
-		doc = query('search3.view', params)
+	#returns the streaming URL for the song
+	def songUrl(songid)
+		buildUrl('stream.view', {:id => songid})
+	end
 
-		#read artists
-		doc.elements.each('subsonic-response/searchResult3/artist') do |artist|
-			out << {
-				:id => artist.attributes["id"],
-				:type => :artist,
-				:name => artist.attributes["name"]
+	#returns the albumart URL for the song
+	def albumartUrl(streamUrl)
+		raise ArgumentError if streamUrl.empty?
+		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
+		buildUrl('getCoverArt.view', {:id => id})
+	end
+
+	#should the need arise, this outputs the album art as binary
+	def albumart
+		puts "Not yet implemented"
+	end
+
+	private
+		def search(query, type)
+			out = []
+
+			params = {
+				:query => query, 
+				:songCount => 0, 
+				:albumCount => 0, 
+				:artistCount => 0,
 			}
-		end
+
+			case type
+			when :artist
+				params[:artistCount] = @configs.max_search_results
+			when :album
+				params[:albumCount] = @configs.max_search_results
+			when :song
+				params[:songCount] = @configs.max_search_results
+			when :any
+				#XXX or do we now use max/3 for each?
+				params[:songCount] = @configs.max_search_results
+				params[:albumCount] = @configs.max_search_results
+				params[:artistCount] = @configs.max_search_results
+			end
+
+			doc = query('search3.view', params)
+
+			#read artists
+			doc.elements.each('subsonic-response/searchResult3/artist') do |artist|
+				out << {
+					:id => artist.attributes["id"],
+					:type => :artist,
+					:name => artist.attributes["name"]
+				}
+			end
 
 		#read albums
 		doc.elements.each('subsonic-response/searchResult3/album') do |album|
@@ -164,42 +196,24 @@ class Subsonic
 		end
 
 		out
-	end
+		end
 
-	def query(method, params)
-		url = buildUrl(method, params)
-		data = Net::HTTP.get_response(URI.parse(url)).body
-		Document.new(data)
-	end
+		def query(method, params)
+			url = buildUrl(method, params)
+			data = Net::HTTP.get_response(URI.parse(url)).body
+			Document.new(data)
+		end
 
-	def buildUrl(method, params)
-		params[:u] = @configs.uname
-		params[:p] = @configs.pword
-		params[:v] = @configs.version
-		params[:c] = @configs.appname
-		query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
+		def buildUrl(method, params)
+			params[:u] = @configs.uname
+			params[:p] = @configs.pword
+			params[:v] = @configs.version
+			params[:c] = @configs.appname
+			query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
-		url ="#{@configs.server}/rest/#{method}?#{query}"
-		puts "url2: #{url}"
-		url
-	end
-
-	#returns the streaming URL for the song
-	def songUrl(songid)
-		buildUrl('stream.view', {:id => songid})
-	end
-
-	#returns the albumart URL for the song
-	def albumartUrl(streamUrl)
-		raise ArgumentError if streamUrl.empty?
-		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
-		buildUrl('getCoverArt.view', {:id => id})
-	end
-
-	#should the need arise, this outputs the album art as binary
-	def albumart
-		puts "Not yet implemented"
-	end
-
+			url ="#{@configs.server}/rest/#{method}?#{query}"
+			puts "url2: #{url}"
+			url
+		end
 
 end

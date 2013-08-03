@@ -51,6 +51,39 @@ class Subcl
 		)
 	end
 
+	def searchSong(name)
+		songs = @subsonic.songs(name)
+		if(songs.size == 0)
+			puts "No matching song"
+		else
+			songs.each do |song|
+				puts "#{song[:title]} by #{song[:artist]} on #{song[:album]}"
+			end
+		end
+	end
+
+	def searchAlbum(name)
+		albums = @subsonic.albums(name)
+		if(albums.size == 0)
+			puts "No matching album"
+		else
+			albums.each do |album|
+				puts "#{album[:name]} by #{album[:artist]}"
+			end
+		end
+	end
+
+	def searchArtist(name)
+		artists = @subsonic.artists(name)
+		if(artists.size == 0)
+			puts "No matching artist"
+		else
+			artists.each do |artist|
+				puts "#{artist[:name]}"
+			end
+		end
+	end
+
 end
 
 def usage
@@ -59,6 +92,11 @@ def usage
 end
 
 
+#don't throw a huge stacktrace
+trap("INT") {
+ puts "\n"
+ exit 
+}
 
 subcl = Subcl.new
 
