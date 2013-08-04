@@ -24,7 +24,7 @@ class Subsonic
 
 		if searchResults.length.zero?
 			$stderr.puts "No matching song"
-			return
+			return []
 		end
 
 		return songUrl( whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"} )
@@ -39,7 +39,7 @@ class Subsonic
 
 		if searchResults.length.zero?
 			$stderr.puts "No matching album"
-			return
+			return []
 		end
 
 		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
@@ -60,7 +60,7 @@ class Subsonic
 
 		if searchResults.length.zero?
 			$stderr.puts "No matching artist"
-			return
+			return []
 		end
 
 		artistId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}

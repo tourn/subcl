@@ -35,6 +35,11 @@ Currently supported commands
 	ql | queue aLbum [pattern]
 	qs | queue song [pattern]
 
+Status Codes
+------------
+- 1: An error occured communicating with the server
+- 2: Your query returned no results
+
 Issues
 ------
 - no support for HTTPS (does mpd even support this?)
