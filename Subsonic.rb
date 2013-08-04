@@ -208,7 +208,32 @@ class Subsonic
 			res = Net::HTTP.start(uri.hostname, uri.port) do |http|
 				http.request(req)
 			end
-			Document.new(res.body)
+
+			doc = Document.new(res.body)
+
+			#handle error response
+			doc.elements.each('subsonic-response/error') do |error|
+				$stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
+				$stderr.print "Error communicating with the Subsonic server: "
+				$stderr.puts  "#{error.attributes["message"]} (#{error.attributes["code"]})"
+				exit 1
+			end
+
+			#handle http error
+			case res.code
+			when '200'
+				doc
+			else
+				$stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
+				$stderr.print "Error communicating with the Subsonic server: "
+				case res.code
+				when '401'
+					$stderr.puts "HTTP 401. Might be an incorrect username/password"
+				else
+					$stderr.puts "HTTP #{res.code}"
+				end
+				exit 1
+			end
 		end
 
 		def buildUrl(method, params)
