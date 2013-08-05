@@ -45,8 +45,8 @@ class Subsonic
 		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
 
 		songs = []
-		doc = query('getMusicDirectory.view', {:id => albumId})
-		doc.elements.each('subsonic-response/directory/child') do |song|
+		doc = query('getAlbum.view', {:id => albumId})
+		doc.elements.each('subsonic-response/album/song') do |song|
 			songs << songUrl(song.attributes["id"])
 		end
 
@@ -244,7 +244,7 @@ class Subsonic
 			query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
 			uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-			#puts "url2: #{uri}"
+			puts "url2: #{uri}"
 			uri
 		end
 
