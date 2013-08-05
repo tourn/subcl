@@ -41,7 +41,6 @@ class Subcl
 
 	def queueAlbum(name, clear = false)
 		songs = @subsonic.albumSongs(name)
-		p songs
 		exit 2 if songs.empty?
 		@player.clear if clear
 

@@ -17,6 +17,7 @@ class Mpc
 	end
 
 	def clear
+		mpccall("stop")
 		mpccall("clear")
 	end
 
