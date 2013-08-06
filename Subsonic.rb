@@ -42,7 +42,7 @@ class Subsonic
 			return []
 		end
 
-		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
+		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]} by #{e[:artist]}"}
 
 		songs = []
 		doc = query('getAlbum.view', {:id => albumId})
@@ -244,7 +244,7 @@ class Subsonic
 			query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
 			uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-			puts "url2: #{uri}"
+			#puts "url2: #{uri}"
 			uri
 		end
 
