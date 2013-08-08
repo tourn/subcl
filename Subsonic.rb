@@ -8,6 +8,8 @@ require_relative 'configs'
 
 class Subsonic
 
+	attr_accessor :interactive
+
 	def initialize
 		begin
 			@configs = Configs.new
@@ -15,6 +17,8 @@ class Subsonic
 			$stderr.puts e.message
 			exit
 		end
+
+		@interactive = true
 	end
 
 	#returns a song streaming url for the given name
@@ -79,10 +83,9 @@ class Subsonic
 
 	def whichDidYouMean(array)
 
-		#puts "wdym: #{array.size} elements"
-
-		# only one value, return it
-		return array.first[:id] if array.length == 1
+		if array.length == 1 or !@interactive
+			return array.first[:id]
+		end
 
 		choices = {}
 		i = 1

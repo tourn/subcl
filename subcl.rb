@@ -3,6 +3,7 @@ require_relative './Mpc'
 require 'optparse'
 
 class Subcl
+	attr_reader :player, :subsonic
 
 	def initialize
 		@subsonic = Subsonic.new	
@@ -102,6 +103,7 @@ trap("INT") {
  exit 
 }
 
+subcl = Subcl.new
 
 options = {}
 
@@ -126,6 +128,9 @@ OptionParser.new do |opts|
   opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
     options[:verbose] = v
   end
+	opts.on('-1', '--use-first', 'On multiple matches, use the first match instead of asking interactively') do
+		subcl.subsonic.interactive = false
+	end
   opts.on("--version", "Print version information") do
 		puts Configs.new.app_version
 		exit
@@ -136,8 +141,6 @@ OptionParser.new do |opts|
 	end
 
 end.parse!
-
-subcl = Subcl.new
 
 unless ARGV.size >= 2
 	puts usage
