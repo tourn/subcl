@@ -105,6 +105,11 @@ trap("INT") {
 
 subcl = Subcl.new
 
+if File.exist?('debug')
+	puts "DEBUGGING"
+	subcl.player.debug = true
+end
+
 options = {}
 
 #no idea how to get this variable from outside, so we'll just set it in the loop
