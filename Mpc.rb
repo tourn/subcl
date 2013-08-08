@@ -1,7 +1,9 @@
 
 class Mpc
-	def mpccall(cmd)
+	def mpccall(cmd, quiet = true)
 		call = "mpc #{cmd}"
+		call << " > /dev/null" if quiet
+
 		unless system(call)
 			$stderr.puts "MPC call error: #{$?}"
 		end
