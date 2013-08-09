@@ -1,0 +1,60 @@
+class Picker
+	def initialize(ary)
+		@available = ary
+	end
+
+	def pick
+		choices = {}
+
+		i = 1
+		@available.each do |elem|
+			choices[i] = elem
+			$stderr.print "[#{i}] " 
+			$stderr.puts yield(elem)
+			i = i + 1
+		end
+
+
+		begin
+			picks = []
+			valid = true
+			$stderr.print "Pick any: "
+
+			choice = $stdin.gets
+
+			return @available if choice.chomp == 'all'
+
+			choice.split(/[ ,]+/).each do |part|
+				possibleRange = part.split(/\.\.|-/)
+				if possibleRange.length == 2
+					start = possibleRange[0].to_i
+					stop = possibleRange[1].to_i
+					[start, stop].each do |num|
+						valid = validate(num)
+					end
+					(start..stop).each do |num|
+						picks << choices[num]
+					end
+
+				elsif validate(num = part.to_i)
+					picks << choices[num]
+				else
+					valid == false
+				end
+			end
+		end while !valid
+
+		return picks
+	end
+
+	def validate(pickNum)
+		#no -1, we start filling choices{} at 1
+		if pickNum > 0 and pickNum <= @available.length
+			true
+		else
+			$stderr.puts "Invalid pick. Try again."
+			false
+		end
+	end
+
+end

@@ -6,6 +6,7 @@ include REXML
 
 require_relative 'configs'
 require_relative 'Song'
+require_relative 'Picker'
 
 class Subsonic
 
@@ -32,7 +33,7 @@ class Subsonic
 			return []
 		end
 
-		return whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"}
+		return whichDidYouMean(searchResults) {|e| "#{e['title']} by #{e['artist']} on #{e['album']} (#{e['year']})"}
 
 	end
 
@@ -47,12 +48,12 @@ class Subsonic
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]} by #{e[:artist]}"}
+		picks = whichDidYouMean(searchResults) {|e| "#{e['name']} by #{e['artist']} in #{e['year']}"}
 		songs = []
 		picks.each do |album|
 			doc = query('getAlbum.view', {:id => album['id']})
-			doc.elements.each('subsonic-response/album/song') do |attributes|
-				songs << Song.new(self, attributes)
+			doc.elements.each('subsonic-response/album/song') do |element|
+				songs << Song.new(self, element.attributes)
 			end
 		end
 
@@ -69,14 +70,14 @@ class Subsonic
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
+		picks = whichDidYouMean(searchResults) {|e| "#{e['name']}"}
 		songs = []
 		picks.each do |artist|
 			doc = query('getArtist.view', {:id => artist['id']})
 			doc.elements.each('subsonic-response/artist/album') do |album|
 				doc = query('getAlbum.view', {:id => album.attributes['id']})
-				doc.elements.each('subsonic-response/album/song') do |attributes|
-					songs << Song.new(self, attributes)
+				doc.elements.each('subsonic-response/album/song') do |element|
+					songs << Song.new(self, element.attributes)
 				end
 			end
 		end
@@ -90,28 +91,9 @@ class Subsonic
 			return array
 		end
 
-		choices = {}
-		i = 1
-
-		array.each do |elem|
-			choices[i] = elem
-			print "[#{i}] " 
-			yield(elem)
-			i = i + 1
-		end
-
-		print "Which did you mean [1..#{i-1}]? "
-		choice = $stdin.gets
-
-		#TODO awesome choice parsing here
-		picks = []
-		while choice.to_i < 1 or choice.to_i >= i do
-			print "Bad choice. Try again. "
-			choice = $stdin.gets
-		end
-		picks << choices[choice.to_i]
-
-		return picks
+		#&Proc.new passes down the block given to this method
+		#http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html
+		return Picker.new(array).pick(&Proc.new)
 
 	end
 

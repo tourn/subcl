@@ -22,7 +22,7 @@ class Mpc
 			raise ArgumentError, "parameter does not have an #url method"
 		end
 		if @debug
-			puts "would add #{song.url}"
+			puts "would add #{song['title']}: #{song.url}"
 		else
 			mpccall("add '#{song.url}'")
 		end

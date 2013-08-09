@@ -54,6 +54,7 @@ class Subcl
 		songs = @subsonic.song(name)
 		exit 2 if songs.empty?
 		@player.clear if clear
+
 		songs.each do |song|
 			@player.add(song)
 		end
@@ -66,7 +67,7 @@ class Subcl
 			exit 2
 		else
 			songs.each do |song|
-				puts "#{song[:title]} by #{song[:artist]} on #{song[:album]}"
+				puts "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
 			end
 		end
 	end
@@ -78,7 +79,7 @@ class Subcl
 			exit 2
 		else
 			albums.each do |album|
-				puts "#{album[:name]} by #{album[:artist]}"
+				puts "#{album['name']} by #{album['artist']} in #{album['year']}"
 			end
 		end
 	end
@@ -90,7 +91,7 @@ class Subcl
 			exit 2
 		else
 			artists.each do |artist|
-				puts "#{artist[:name]}"
+				puts "#{artist['name']}"
 			end
 		end
 	end
