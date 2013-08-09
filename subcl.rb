@@ -150,7 +150,7 @@ OptionParser.new do |opts|
 
 end.parse!
 
-unless ARGV.size >= 2
+unless ARGV.size >= 1
 	puts usage
 	exit
 end
@@ -158,6 +158,7 @@ end
 song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
 
 #this hurts my eyes AND my heart
+#TODO actually i could break down the Subcl class and put all the code in here
 case ARGV[0].downcase
 when 'play-song'
 	subcl.playSong(song)
@@ -197,6 +198,10 @@ when 'sl'
 	subcl.searchAlbum(song)
 when "albumart-url"
 	puts subcl.albumartUrl
+when "album-list"
+	subcl.subsonic.albumlist
+when "al"
+	subcl.subsonic.albumlist
 else
 	puts usage
 end

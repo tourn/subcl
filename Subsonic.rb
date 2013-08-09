@@ -132,6 +132,13 @@ class Subsonic
 		$stderr.puts "Not yet implemented"
 	end
 
+	def albumlist
+		doc = query('getAlbumList.view', {:type => 'random'})
+		doc.elements.each('subsonic-response/albumList/album') do |album|
+			puts "#{album.attributes['title']} by #{album.attributes['artist']}"
+		end
+	end
+
 	private
 		def search(query, type)
 			out = []
