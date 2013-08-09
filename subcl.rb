@@ -51,10 +51,12 @@ class Subcl
 	end
 
 	def queueSong(name, clear = false)
-		song = @subsonic.song(name)
-		exit 2 if song.nil?
+		songs = @subsonic.song(name)
+		exit 2 if songs.empty?
 		@player.clear if clear
-		@player.add(song)
+		songs.each do |song|
+			@player.add(song)
+		end
 	end
 
 	def searchSong(name)

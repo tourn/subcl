@@ -16,11 +16,15 @@ class Mpc
 
 	end
 
-	def add(url)
+	def add(song)
+		unless song.respond_to? 'url'
+			p song
+			raise ArgumentError, "parameter does not have an #url method"
+		end
 		if @debug
-			puts "would add #{url}"
+			puts "would add #{song.url}"
 		else
-			mpccall("add '#{url}'")
+			mpccall("add '#{song.url}'")
 		end
 	end
 

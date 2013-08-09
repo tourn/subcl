@@ -5,6 +5,7 @@ require 'cgi'
 include REXML
 
 require_relative 'configs'
+require_relative 'Song'
 
 class Subsonic
 
@@ -21,7 +22,7 @@ class Subsonic
 		@interactive = true
 	end
 
-	#returns a song streaming url for the given name
+	#returns an array of songs for the given album name
 	#on multiple matches, the user is asked interactively for the wanted match
 	def song(name)
 		searchResults = search(name, :song)
@@ -31,27 +32,28 @@ class Subsonic
 			return []
 		end
 
-		return songUrl( whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"} )
+		return whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:title]} by #{e[:artist]} on #{e[:album]}"}
 
 	end
 
-	#returns an array of song streaming urls for the given album name
+	#returns an array of songs for the given album name
 	#on multiple matches, the user is asked interactively for the wanted match
-	def albumSongs(album)
+	def albumSongs(name)
 
-		searchResults = search(album, :album)
+		searchResults = search(name, :album)
 
 		if searchResults.length.zero?
 			$stderr.puts "No matching album"
 			return []
 		end
 
-		albumId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]} by #{e[:artist]}"}
-
+		picks = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]} by #{e[:artist]}"}
 		songs = []
-		doc = query('getAlbum.view', {:id => albumId})
-		doc.elements.each('subsonic-response/album/song') do |song|
-			songs << songUrl(song.attributes["id"])
+		picks.each do |album|
+			doc = query('getAlbum.view', {:id => album['id']})
+			doc.elements.each('subsonic-response/album/song') do |attributes|
+				songs << Song.new(self, attributes)
+			end
 		end
 
 		songs
@@ -67,14 +69,15 @@ class Subsonic
 			return []
 		end
 
-		artistId = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
-
+		picks = whichDidYouMean(searchResults) {|e| $stderr.puts "#{e[:name]}"}
 		songs = []
-		doc = query('getArtist.view', {:id => artistId})
-		doc.elements.each('subsonic-response/artist/album') do |album|
-			doc = query('getAlbum.view', {:id => album.attributes['id']})
-			doc.elements.each('subsonic-response/album/song') do |song|
-				songs << songUrl(song.attributes["id"])
+		picks.each do |artist|
+			doc = query('getArtist.view', {:id => artist['id']})
+			doc.elements.each('subsonic-response/artist/album') do |album|
+				doc = query('getAlbum.view', {:id => album.attributes['id']})
+				doc.elements.each('subsonic-response/album/song') do |attributes|
+					songs << Song.new(self, attributes)
+				end
 			end
 		end
 
@@ -84,7 +87,7 @@ class Subsonic
 	def whichDidYouMean(array)
 
 		if array.length == 1 or !@interactive
-			return array.first[:id]
+			return array
 		end
 
 		choices = {}
@@ -100,12 +103,15 @@ class Subsonic
 		print "Which did you mean [1..#{i-1}]? "
 		choice = $stdin.gets
 
+		#TODO awesome choice parsing here
+		picks = []
 		while choice.to_i < 1 or choice.to_i >= i do
 			print "Bad choice. Try again. "
 			choice = $stdin.gets
 		end
+		picks << choices[choice.to_i]
 
-		return choices[choice.to_i][:id]
+		return picks
 
 	end
 
@@ -171,37 +177,21 @@ class Subsonic
 
 			doc = query('search3.view', params)
 
-			#read artists
-			doc.elements.each('subsonic-response/searchResult3/artist') do |artist|
-				out << {
-					:id => artist.attributes["id"],
-					:type => :artist,
-					:name => artist.attributes["name"]
-				}
+			#TODO find proper variable names. seriously.
+			['artist','album','song'].each do |entityName|
+				doc.elements.each("subsonic-response/searchResult3/#{entityName}") do |entity|
+					ob = nil
+					if entityName == 'song'
+						ob = Song.new self, entity.attributes
+					else
+						ob = entity.attributes
+						ob['type'] = entityName
+					end
+					out << ob
+				end
 			end
 
-		#read albums
-		doc.elements.each('subsonic-response/searchResult3/album') do |album|
-			out << {
-				:id => album.attributes["id"],
-				:type => :album,
-				:name => album.attributes["name"],
-				:artist => album.attributes["artist"]
-			}
-		end
-
-		#read songs
-		doc.elements.each('subsonic-response/searchResult3/song') do |song|
-			out << {
-				:id => song.attributes["id"],
-				:type => :song,
-				:title => song.attributes["title"],
-				:artist => song.attributes["artist"],
-				:album => song.attributes["album"]
-			}
-		end
-
-		out
+			out
 		end
 
 		def query(method, params)
