@@ -3,6 +3,11 @@ Subcl! a command-line client for [Subsonic][sub]
 
 Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies heavily on mpc, so much in fact, that you still have to use the mpc command for playback controls. Subcl only feeds mpd's playlist and keeps no track of it by itself.
 If the song/album/artist you enter is unique, subcl will immediately return. If not, subcl will list all possible matches and ask you for the correct one interactively.
+When choosing interactively, you can choose numbers, ranges, or 'all'
+	Examples:
+	5
+	3, 5, 8-12
+	all
 
 Requirements
 ------------
