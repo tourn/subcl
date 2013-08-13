@@ -1,2 +1,2 @@
 #!/bin/sh
-ruby `dirname $0`/subcl.rb $*
+ruby `dirname $0`/cli.rb $*
