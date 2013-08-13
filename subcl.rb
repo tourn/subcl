@@ -157,50 +157,28 @@ end
 
 song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
 
-#this hurts my eyes AND my heart
-#TODO actually i could break down the Subcl class and put all the code in here
 case ARGV[0].downcase
-when 'play-song'
+when /play-song|ps/
 	subcl.playSong(song)
-when 'play-artist'
+when /play-artist|pr/
 	subcl.playArtist(song)
-when 'play-album'
+when /play-album|pl/
 	subcl.playAlbum(song)
-when 'queue-song'
+when /queue-song|qs/
 	subcl.queueSong(song)
-when 'queue-artist'
+when /queue-artist|qr/
 	subcl.queueArtist(song)
-when 'queue-album'
+when /queue-album|ql/
 	subcl.queueAlbum(song)
-when 'search-song'
+when /search-song|ss/
 	subcl.searchSong(song)
-when 'search-artist'
+when /search-artist|sr/
 	subcl.searchArtist(song)
-when 'search-album'
-	subcl.searchAlbum(song)
-when 'ps'
-	subcl.playSong(song)
-when 'pr'
-	subcl.playArtist(song)
-when 'pl'
-	subcl.playAlbum(song)
-when 'qs'
-	subcl.queueSong(song)
-when 'qr'
-	subcl.queueArtist(song)
-when 'ql'
-	subcl.queueAlbum(song)
-when 'ss'
-	subcl.searchSong(song)
-when 'sr'
-	subcl.searchArtist(song)
-when 'sl'
+when /search-album|sl/
 	subcl.searchAlbum(song)
 when "albumart-url"
 	puts subcl.albumartUrl
-when "album-list"
-	subcl.subsonic.albumlist
-when "al"
+when /album-list|al/
 	subcl.subsonic.albumlist
 else
 	puts usage
