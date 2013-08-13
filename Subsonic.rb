@@ -4,7 +4,7 @@ require 'thread'
 require 'cgi'
 include REXML
 
-require_relative 'configs'
+require_relative 'Configs'
 require_relative 'Song'
 require_relative 'Picker'
 
