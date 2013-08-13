@@ -87,8 +87,12 @@ class Subsonic
 
 	def whichDidYouMean(array)
 
-		if array.length == 1 or !@interactive
+		if array.length == 1
 			return array
+		end
+
+		if !@interactive
+			return [array.first]
 		end
 
 		#&Proc.new passes down the block given to this method
