@@ -51,11 +51,13 @@ Status Codes
 Issues
 ------
 - no support for HTTPS (does mpd even support this?)
+- password is stored in plain text
+- no control over the mpc playlist, and the mpc playlist only shows URLs for songs it hasn't played yet
 
 Coming up
 ---------
 - interactive library browser using ncurses
 - configurable verbosity
-- possibility to switch interactiveness off, for scripting
+- podcasts
 
 [sub]: http://subsonic.org
