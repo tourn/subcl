@@ -56,6 +56,10 @@ unless ARGV.size >= 1
 	exit
 end
 
+unless system('tty -s')
+	subcl.subsonic.interactive = false
+end
+
 song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
 
 case ARGV[0].downcase
