@@ -57,6 +57,7 @@ unless ARGV.size >= 1
 end
 
 unless system('tty -s')
+	#not running in a tty, so no use for interactivity
 	subcl.subsonic.interactive = false
 end
 

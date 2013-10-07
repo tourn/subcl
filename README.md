@@ -1,8 +1,13 @@
 Subcl! a command-line client for [Subsonic][sub]
 ==================================================
 
-Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies heavily on mpc, so much in fact, that you still have to use the mpc command for playback controls. Subcl only feeds mpd's playlist and keeps no track of it by itself.
-If the song/album/artist you enter is unique, subcl will immediately return. If not, subcl will list all possible matches and ask you for the correct one interactively.
+Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies
+heavily on mpc, so much in fact, that you still have to use the mpc command for
+playback controls. Subcl only feeds mpd's playlist and keeps no track of it by
+itself. (Although basically it should be possible to call another command line
+		client that works in a similar fashion) If the song/album/artist you enter
+is unique, subcl will immediately return. If not, subcl will list all possible
+matches and ask you for the correct one interactively.
 
 Requirements
 ------------
@@ -22,19 +27,19 @@ Setup
 Currently supported commands
 ----------------------------
 	search: print entries to console
-	sr | search aRtists [pattern]
-	sl | search aLbums [pattern]
-	ss | search songs [pattern]
+	sr | search-aRtist [pattern]
+	sl | search-aLbum [pattern]
+	ss | search-song [pattern]
 
 	play: clear play queue and immediately start playing this
-	pr | play aRtist [pattern]
-	pl | play aLbum [pattern]
-	ps | play song [pattern]
+	pr | play-aRtist [pattern]
+	pl | play-aLbum [pattern]
+	ps | play-song [pattern]
 
 	queue: add this to the end of the play queue
-	qr | queue aRtist [pattern]
-	ql | queue aLbum [pattern]
-	qs | queue song [pattern]
+	qr | queue-aRtist [pattern]
+	ql | queue-aLbum [pattern]
+	qs | queue-song [pattern]
 
 When choosing interactively, you can choose numbers, ranges, or 'all'
 
@@ -52,12 +57,23 @@ Issues
 ------
 - no support for HTTPS (does mpd even support this?)
 - password is stored in plain text
-- no control over the mpc playlist, and the mpc playlist only shows URLs for songs it hasn't played yet
+- no control over the mpc playlist, and the mpc playlist only shows URLs for
+	songs it hasn't played yet (a possible fix for this might be generating
+			playlists containing the ID3 tags and feeding it to mpd instead of the
+			pure URLs)
 
 Coming up
 ---------
-- interactive library browser using ncurses
-- configurable verbosity
 - podcasts
+- playlist support
+- logging / integration of notification system for error messages which can't be
+	sent to tty
+- make search command more useful
+- additional queue command to add after the current song instead of the end of
+	the list
+- passing through of non-subcl commands (play, toggle, random) to mpc, so you
+	don't have to remember which executable to call
+- configurable verbosity
+- interactive library browser using ncurses
 
 [sub]: http://subsonic.org
