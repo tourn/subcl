@@ -35,11 +35,13 @@ Currently supported commands
 	pr | play-aRtist [pattern]
 	pl | play-aLbum [pattern]
 	ps | play-song [pattern]
+	pp | play-playlist [pattern]
 
 	queue: add this to the end of the play queue
 	qr | queue-aRtist [pattern]
 	ql | queue-aLbum [pattern]
 	qs | queue-song [pattern]
+	qp | queue-playlist [pattern]
 
 When choosing interactively, you can choose numbers, ranges, or 'all'
 
@@ -65,7 +67,8 @@ Issues
 Coming up
 ---------
 - podcasts
-- playlist support
+- search-playlist command or something similar
+- shuffle trigger, to shuffle the entries before adding them to the playlist
 - logging / integration of notification system for error messages which can't be
 	sent to tty
 - make search command more useful
