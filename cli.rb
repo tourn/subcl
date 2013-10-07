@@ -70,12 +70,16 @@ when /play-artist|pr/
 	subcl.playArtist(song)
 when /play-album|pl/
 	subcl.playAlbum(song)
+when /play-paylist|pp/
+	subcl.playPlaylist(song)
 when /queue-song|qs/
 	subcl.queueSong(song)
 when /queue-artist|qr/
 	subcl.queueArtist(song)
 when /queue-album|ql/
 	subcl.queueAlbum(song)
+when /queue-playlist|qp/
+	subcl.queuePlaylist(song)
 when /search-song|ss/
 	subcl.searchSong(song)
 when /search-artist|sr/

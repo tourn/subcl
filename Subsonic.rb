@@ -116,6 +116,50 @@ class Subsonic
 		search(name, :song)
 	end
 
+	#returns all playlists
+	def allPlaylists
+		out = []
+		doc = query('getPlaylists.view')
+		doc.elements.each('subsonic-response/playlists/playlist') do |playlist|
+			item = {
+				:id => playlist.attributes['id'],
+				:name => playlist.attributes['name'],
+				:owner => playlist.attributes['owner']
+			}
+			out << item
+		end
+		out
+	end
+	
+
+	#returns all playlists matching name
+	def playlists(name = nil)
+		out = allPlaylists
+
+		if name
+			name.downcase!
+			out.each do |playlist|
+				unless playlist[:name].downcase.include? name
+					out.delete(playlist)
+				end
+			end
+		end
+
+		whichDidYouMean(out) { |e| "#{e[:name]} by #{e[:owner]}"}
+	end
+
+	#returns all songs from playlist(s) matching the name
+	def playlistSongs(playListName)
+		out = []
+		playlists(playListName).each do |playlist|
+			doc = query('getPlaylist.view', {:id => playlist[:id]})
+			doc.elements.each('subsonic-response/playlist/entry') do |entry|
+				out << Song.new(self, entry.attributes)
+			end
+		end
+		out
+	end
+
 	#returns the streaming URL for the song, including basic auth
 	def songUrl(songid)
 		uri = buildUrl('stream.view', {:id => songid})
@@ -187,7 +231,7 @@ class Subsonic
 			out
 		end
 
-		def query(method, params)
+		def query(method, params = {})
 			uri = buildUrl(method, params)
 			req = Net::HTTP::Get.new(uri.request_uri)
 			req.basic_auth(@configs.uname, @configs.pword)

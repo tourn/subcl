@@ -29,6 +29,12 @@ class Subcl
 		@player.play
 	end
 
+	def playPlaylist(name)
+		queuePlaylist(name, true)
+		@player.play
+	end
+
+	#TODO make generic method queue
 	def queueArtist(name, clear = false)
 		songs = @subsonic.artistSongs(name)
 		exit 2 if songs.empty?
@@ -54,6 +60,15 @@ class Subcl
 		exit 2 if songs.empty?
 		@player.clear if clear
 
+		songs.each do |song|
+			@player.add(song)
+		end
+	end
+
+	def queuePlaylist(name, clear = false)
+		songs = @subsonic.playlistSongs(name)
+		exit 2 if songs.empty?
+		@player.clear if clear
 		songs.each do |song|
 			@player.add(song)
 		end
