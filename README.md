@@ -72,6 +72,9 @@ Coming up
 - logging / integration of notification system for error messages which can't be
 	sent to tty
 - make search command more useful
+- wildcard play command (don't have to specify if it's a song, an album...)
+	with configurable order for non-interactive mode (First, if it's a song name,
+			play this song. otherwise, if it's an album...)
 - additional queue command to add after the current song instead of the end of
 	the list
 - passing through of non-subcl commands (play, toggle, random) to mpc, so you
