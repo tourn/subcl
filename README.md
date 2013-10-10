@@ -68,7 +68,6 @@ Coming up
 ---------
 - podcasts
 - search-playlist command or something similar
-- shuffle trigger, to shuffle the entries before adding them to the playlist
 - logging / integration of notification system for error messages which can't be
 	sent to tty
 - make search command more useful

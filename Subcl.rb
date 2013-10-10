@@ -3,6 +3,7 @@ require_relative 'Subsonic'
 
 class Subcl
 	attr_reader :player, :subsonic
+	attr_accessor :shuffle
 
 	def initialize
 		@subsonic = Subsonic.new	
@@ -37,6 +38,8 @@ class Subcl
 	def queue(songs, clear = false)
 		exit 2 if songs.empty?
 		@player.clear if clear
+
+		songs.shuffle! if @shuffle
 
 		songs.each do |song|
 			@player.add(song)
