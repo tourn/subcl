@@ -134,13 +134,14 @@ class Subsonic
 
 	#returns all playlists matching name
 	def playlists(name = nil)
-		out = allPlaylists
+		all = allPlaylists
+		out = []
 
 		if name
 			name.downcase!
-			out.each do |playlist|
-				unless playlist[:name].downcase.include? name
-					out.delete(playlist)
+			all.each do |playlist|
+				if playlist[:name].downcase.include? name
+					out << playlist
 				end
 			end
 		end
