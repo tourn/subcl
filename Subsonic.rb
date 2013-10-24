@@ -182,9 +182,9 @@ class Subsonic
 	end
 
 	def albumlist
-		doc = query('getAlbumList.view', {:type => 'random'})
-		doc.elements.each('subsonic-response/albumList/album') do |album|
-			puts "#{album.attributes['title']} by #{album.attributes['artist']}"
+		doc = query('getAlbumList2.view', {:type => 'random'})
+		doc.elements.each('subsonic-response/albumList2/album') do |album|
+			puts "#{album.attributes['name']} by #{album.attributes['artist']}"
 		end
 	end
 
