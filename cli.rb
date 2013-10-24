@@ -31,7 +31,8 @@ OptionParser.new do |opts|
 	opts.separator "    add to end of queue"
 	opts.separator "        queue[-song|-album|-artist|-playlist] <pattern>"
 	opts.separator "        qs|ql|qr|qp <pattern>"
-	opts.separator "    albumart-url - print url of albumart to terminal"
+	opts.separator "    albumart-url [size] - print url of albumart to terminal, "
+	opts.separator "        optionally with a specified image size"
 	opts.separator ""
 	opts.separator "Options"
 
@@ -67,33 +68,35 @@ unless system('tty -s')
 	subcl.subsonic.interactive = false
 end
 
-song = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
+arg = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
+
 
 case ARGV[0].downcase
 when /play-song|ps/
-	subcl.playSong(song)
+	subcl.playSong(arg)
 when /play-artist|pr/
-	subcl.playArtist(song)
+	subcl.playArtist(arg)
 when /play-album|pl/
-	subcl.playAlbum(song)
+	subcl.playAlbum(arg)
 when /play-paylist|pp/
-	subcl.playPlaylist(song)
+	subcl.playPlaylist(arg)
 when /queue-song|qs/
-	subcl.queueSong(song)
+	subcl.queueSong(arg)
 when /queue-artist|qr/
-	subcl.queueArtist(song)
+	subcl.queueArtist(arg)
 when /queue-album|ql/
-	subcl.queueAlbum(song)
+	subcl.queueAlbum(arg)
 when /queue-playlist|qp/
-	subcl.queuePlaylist(song)
+	subcl.queuePlaylist(arg)
 when /search-song|ss/
-	subcl.searchSong(song)
+	subcl.searchSong(arg)
 when /search-artist|sr/
-	subcl.searchArtist(song)
+	subcl.searchArtist(arg)
 when /search-album|sl/
-	subcl.searchAlbum(song)
+	subcl.searchAlbum(arg)
 when "albumart-url"
-	puts subcl.albumartUrl
+	arg = nil if arg.empty?
+	puts subcl.albumartUrl(arg)
 when /album-list|al/
 	subcl.subsonic.albumlist
 else

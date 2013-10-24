@@ -168,11 +168,13 @@ class Subsonic
 	end
 
 	#returns the albumart URL for the song
-	def albumartUrl(streamUrl)
+	def albumartUrl(streamUrl, size = nil)
 		raise ArgumentError if streamUrl.empty?
 		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
+		params = {:id => id};
+		params[:size] = size unless size.nil?
 		addBasicAuth(
-			buildUrl('getCoverArt.view', {:id => id})
+			buildUrl('getCoverArt.view', params)
 		)
 	end
 
