@@ -19,10 +19,14 @@ Setup
 -----
 .subcl file in your home directory (~/.subcl) contains:
 
-	server &lt;name of your subsonic server>
-	username &lt;username for subsonic>
-	password &lt;password for subsonic>
-	max_search_results &lt;maximum search results, optional, default 20>
+	server <name of your subsonic server>
+	username <username for subsonic>
+	password <password for subsonic>
+	max_search_results <maximum search results, optional, default 20>
+	notify_method <notification system to use, optional, default auto>
+		auto - autmatically detect notifcation binary (may be slower)
+		growlnotify
+		notify-send
 
 Currently supported commands
 ----------------------------

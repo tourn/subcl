@@ -5,6 +5,7 @@ class Configs
 	attr_reader :pword
 	attr_reader :proto_version
 	attr_reader :max_search_results
+	attr_reader :notifyMethod
 	attr_reader :appname
 	attr_reader :app_version
 
@@ -14,6 +15,7 @@ class Configs
 		@proto_version = '1.9.0'
 		@appname = 'subcl'
 		@max_search_results = 20 #default value
+		@notifyMethod = "auto"
 
 		@filename = File.expand_path("~/.subcl")
 		unless File.file?(@filename)
@@ -37,6 +39,8 @@ class Configs
 				@pword = spl[1]
 			elsif spl[0].eql? "max_search_results"
 				@max_search_results = spl[1]
+			elsif spl[0].eql? "notify_method"
+				@notifyMethod = spl[1]
 			end
 		end
 

@@ -1,5 +1,7 @@
 require_relative 'Mpc'
 require_relative 'Subsonic'
+require_relative 'Configs'
+require_relative 'Notify'
 
 class Subcl
 	attr_reader :player, :subsonic
@@ -8,6 +10,7 @@ class Subcl
 	def initialize
 		@subsonic = Subsonic.new	
 		@player = Mpc.new
+		@notifier = Notify.new Configs.new.notifyMethod
 	end
 
 	def albumartUrl(size = nil)
