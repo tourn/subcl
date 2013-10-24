@@ -5,11 +5,23 @@ require_relative 'Notify'
 
 class Subcl
 	attr_reader :player, :subsonic
-	attr_accessor :shuffle
 
-	def initialize
+	def initialize(options = {})
+		#default options
+		@options = {
+			:interactive => true,
+			:tty => true
+		}
+
+		#overwrite defaults with given options
+		@options.merge! (options)
+
 		@subsonic = Subsonic.new	
+		@subsonic.interactive = @options[:interactive]
+
 		@player = Mpc.new
+		@player.debug = @options[:debug]
+
 		@notifier = Notify.new Configs.new.notifyMethod
 	end
 
@@ -39,10 +51,12 @@ class Subcl
 	end
 
 	def queue(songs, clear = false)
-		exit 2 if songs.empty?
+		if songs.empty?
+			noMatches
+		end
 		@player.clear if clear
 
-		songs.shuffle! if @shuffle
+		songs.shuffle! if @options[:shuffle]
 
 		songs.each do |song|
 			@player.add(song)
@@ -68,8 +82,7 @@ class Subcl
 	def searchSong(name)
 		songs = @subsonic.songs(name)
 		if(songs.size == 0)
-			$stderr.puts "No matching song"
-			exit 2
+			noMatches("song")
 		else
 			songs.each do |song|
 				puts "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
@@ -80,8 +93,7 @@ class Subcl
 	def searchAlbum(name)
 		albums = @subsonic.albums(name)
 		if(albums.size == 0)
-			$stderr.puts "No matching album"
-			exit 2
+			noMatches("album")
 		else
 			albums.each do |album|
 				puts "#{album['name']} by #{album['artist']} in #{album['year']}"
@@ -92,13 +104,29 @@ class Subcl
 	def searchArtist(name)
 		artists = @subsonic.artists(name)
 		if(artists.size == 0)
-			$stderr.puts "No matching artist"
-			exit 2
+			noMatches("artist")
 		else
 			artists.each do |artist|
 				puts "#{artist['name']}"
 			end
 		end
 	end
+
+	#prints an error that no matches were found on the fitting channel, the exits with code 2
+	def noMatches(what = nil)
+		if what
+			message = "No matching #{what}"
+		else
+			message = "No matches"
+		end
+
+		if @options[:tty]
+			$stderr.puts message
+		else
+			@notifier.notify(message) 
+		end
+		exit 2 
+	end
+
 
 end

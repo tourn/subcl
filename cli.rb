@@ -7,14 +7,12 @@ trap("INT") {
 	exit
 }
 
-subcl = Subcl.new
+options = {}
 
 if File.exist?('debug')
 	puts "DEBUGGING"
-	subcl.player.debug = true
+	options[:debug] = true
 end
-
-options = {}
 
 #no idea how to get this variable from outside, so we'll just set it in the loop
 usage = nil
@@ -42,10 +40,10 @@ OptionParser.new do |opts|
 		options[:verbose] = v
 	end
 	opts.on('-1', '--use-first', 'On multiple matches, use the first match instead of asking interactively') do
-		subcl.subsonic.interactive = false
+		options[:interactive] = false
 	end
 	opts.on('-s', '--shuffle', "Shuffle playlist before queueing") do
-		subcl.shuffle = true
+		options[:shuffle] = true
 	end
 	opts.on('-h', '--help', 'Display this screen') do
 		puts opts
@@ -65,8 +63,11 @@ end
 
 unless system('tty -s')
 	#not running in a tty, so no use for interactivity
-	subcl.subsonic.interactive = false
+	options[:tty] = false
+	options[:interactive] = false
 end
+
+subcl = Subcl.new options
 
 arg = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes are required
 

@@ -29,7 +29,6 @@ class Subsonic
 		searchResults = search(name, :song)
 
 		if searchResults.length.zero?
-			$stderr.puts "No matching song"
 			return []
 		end
 
@@ -44,7 +43,6 @@ class Subsonic
 		searchResults = search(name, :album)
 
 		if searchResults.length.zero?
-			$stderr.puts "No matching album"
 			return []
 		end
 
@@ -66,7 +64,6 @@ class Subsonic
 		searchResults = search(name, :artist)
 
 		if searchResults.length.zero?
-			$stderr.puts "No matching artist"
 			return []
 		end
 
