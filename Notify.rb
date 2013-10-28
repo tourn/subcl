@@ -45,7 +45,7 @@ class Notify
 		when nil
 			#great, do nothing
 		when "notify-send"
-			system("notify-send '#{message}'")
+			system("notify-send --urgency critical '#{message}'")
 		when "growlnotify"
 			system("growlnotify --title Subcl --message '#{message}'")
 		end
