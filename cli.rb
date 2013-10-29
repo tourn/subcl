@@ -7,7 +7,7 @@ trap("INT") {
 	exit
 }
 
-options = {}
+options = { :tty => true }
 
 if File.exist?('debug')
 	puts "DEBUGGING"
@@ -112,5 +112,9 @@ when "albumart-url"
 when /album-list|al/
 	subcl.subsonic.albumlist
 else
-	puts usage
+	if options[:tty] then
+		puts usage
+	else
+		subcl.notifier.notify "Unrecognized command"
+	end
 end

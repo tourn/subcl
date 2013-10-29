@@ -4,7 +4,7 @@ require_relative 'Configs'
 require_relative 'Notify'
 
 class Subcl
-	attr_reader :player, :subsonic
+	attr_reader :player, :subsonic, :notifier
 
 	def initialize(options = {})
 		#default options
