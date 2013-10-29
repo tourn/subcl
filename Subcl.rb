@@ -10,11 +10,12 @@ class Subcl
 		#default options
 		@options = {
 			:interactive => true,
-			:tty => true
+			:tty => true,
+			:insert => false
 		}
 
 		#overwrite defaults with given options
-		@options.merge! (options)
+		@options.merge! options
 
 		@subsonic = Subsonic.new	
 		@subsonic.interactive = @options[:interactive]
@@ -30,53 +31,38 @@ class Subcl
 		puts @subsonic.albumartUrl(current, size) unless current.empty?
 	end
 
-	def playSong(name)
-		queueSong(name, true)
-		@player.play
-	end
+	def queue(query, type, inArgs = {})
+		args = {
+			:clear => false, #whether to clear the playlist prior to adding songs
+			:play => false, #whether to start the player after adding the songs
+			:insert => false #whether to insert the songs after the current instead of the last one
+		}
+		args.merge! inArgs
 
-	def playAlbum(name)
-		queueAlbum(name, true)
-		@player.play
-	end
+		songs = case type
+						when :song
+							@subsonic.song(query)
+						when :album
+							@subsonic.albumSongs(query)
+						when :artist
+							@subsonic.artistSongs(query)
+						when :playlist
+							@subsonic.playlistSongs(query)
+						end
 
-	def playArtist(name)
-		queueArtist(name, true)
-		@player.play
-	end
-
-	def playPlaylist(name)
-		queuePlaylist(name, true)
-		@player.play
-	end
-
-	def queue(songs, clear = false)
 		if songs.empty?
 			noMatches
 		end
-		@player.clear if clear
+
+		@player.clear if args[:clear]
 
 		songs.shuffle! if @options[:shuffle]
 
 		songs.each do |song|
-			@player.add(song)
+			@player.add(song, args[:insert])
 		end
-	end
 
-	def queueArtist(name, clear = false)
-		queue(@subsonic.artistSongs(name), clear)
-	end
-
-	def queueAlbum(name, clear = false)
-		queue(@subsonic.albumSongs(name), clear)
-	end
-
-	def queueSong(name, clear = false)
-		queue(@subsonic.song(name), clear)
-	end
-
-	def queuePlaylist(name, clear = false)
-		queue(@subsonic.playlistSongs(name), clear)
+		@player.play if args[:play]
 	end
 
 	def searchSong(name)

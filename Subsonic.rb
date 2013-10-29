@@ -8,12 +8,14 @@ require_relative 'Configs'
 require_relative 'Song'
 require_relative 'Picker'
 
+#TODO remove puts from this class; Subcl should handle this
 class Subsonic
 
 	attr_accessor :interactive
 
 	def initialize
 		begin
+			#TODO pull configs up into Subcl
 			@configs = Configs.new
 		rescue => e
 			$stderr.puts e.message

@@ -27,8 +27,11 @@ OptionParser.new do |opts|
 	opts.separator "        play[-song|-album|-artist|-playlist] <pattern>"
 	opts.separator "        ps|pl|pr|pp <pattern>"
 	opts.separator "    add to end of queue"
-	opts.separator "        queue[-song|-album|-artist|-playlist] <pattern>"
-	opts.separator "        qs|ql|qr|qp <pattern>"
+	opts.separator "        queue-last[-song|-album|-artist|-playlist] <pattern>"
+	opts.separator "        ls|ll|lr|lp <pattern>"
+	opts.separator "    add after the current song"
+	opts.separator "        queue-next[-song|-album|-artist|-playlist] <pattern>"
+	opts.separator "        ns|nl|nr|np <pattern>"
 	opts.separator "    albumart-url [size] - print url of albumart to terminal, "
 	opts.separator "        optionally with a specified image size"
 	opts.separator ""
@@ -74,21 +77,29 @@ arg = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes ar
 
 case ARGV[0].downcase
 when /play-song|ps/
-	subcl.playSong(arg)
+	subcl.queue(arg, :song, {:play => true, :clear => true})
 when /play-artist|pr/
-	subcl.playArtist(arg)
+	subcl.queue(arg, :artist, {:play => true, :clear => true})
 when /play-album|pl/
-	subcl.playAlbum(arg)
-when /play-paylist|pp/
-	subcl.playPlaylist(arg)
-when /queue-song|qs/
-	subcl.queueSong(arg)
-when /queue-artist|qr/
-	subcl.queueArtist(arg)
-when /queue-album|ql/
-	subcl.queueAlbum(arg)
-when /queue-playlist|qp/
-	subcl.queuePlaylist(arg)
+	subcl.queue(arg, :album, {:play => true, :clear => true})
+when /play-playlist|pp/
+	subcl.queue(arg, :playlist, {:play => true, :clear => true})
+when /queue-next-song|ns/
+	subcl.queue(arg, :song, {:insert => true})
+when /queue-next-artist|nr/
+	subcl.queue(arg, :artist, {:insert => true})
+when /queue-next-album|nl/
+	subcl.queue(arg, :album, {:insert => true})
+when /queue-next-playlist|np/
+	subcl.queue(arg, :playlist, {:insert => true})
+when /queue-last-song|ls/
+	subcl.queue(arg, :song)
+when /queue-last-artist|lr/
+	subcl.queue(arg, :artist)
+when /queue-last-album|ll/
+	subcl.queue(arg, :album)
+when /queue-last-playlist|lp/
+	subcl.queue(arg, :playlist)
 when /search-song|ss/
 	subcl.searchSong(arg)
 when /search-artist|sr/

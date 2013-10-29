@@ -41,11 +41,17 @@ Currently supported commands
 	ps | play-song [pattern]
 	pp | play-playlist [pattern]
 
-	queue: add this to the end of the play queue
-	qr | queue-aRtist [pattern]
-	ql | queue-aLbum [pattern]
-	qs | queue-song [pattern]
-	qp | queue-playlist [pattern]
+	queue-next: add this after the current song
+	nr | queue-next-aRtist [pattern]
+	nl | queue-next-aLbum [pattern]
+	ns | queue-next-song [pattern]
+	np | queue-next-playlist [pattern]
+
+	queue-last: add this to the end of the play queue
+	lr | queue-next-aRtist [pattern]
+	ll | queue-next-aLbum [pattern]
+	ls | queue-next-song [pattern]
+	lp | queue-next-playlist [pattern]
 
 When choosing interactively, you can choose numbers, ranges, or 'all'
 
