@@ -18,24 +18,24 @@ end
 usage = nil
 OptionParser.new do |opts|
 	opts.banner = "Usage: subcl [options] command"
-	opts.separator ""
-	opts.separator "Commands"
-	opts.separator "    list to terminal"
-	opts.separator "        search[-song|-album|-artist] <pattern>"
-	opts.separator "        ss|sl|sr <pattern>"
-	opts.separator "    clear queue and immediately start playing"
-	opts.separator "        play[-song|-album|-artist|-playlist] <pattern>"
-	opts.separator "        ps|pl|pr|pp <pattern>"
-	opts.separator "    add to end of queue"
-	opts.separator "        queue-last[-song|-album|-artist|-playlist] <pattern>"
-	opts.separator "        ls|ll|lr|lp <pattern>"
-	opts.separator "    add after the current song"
-	opts.separator "        queue-next[-song|-album|-artist|-playlist] <pattern>"
-	opts.separator "        ns|nl|nr|np <pattern>"
-	opts.separator "    albumart-url [size] - print url of albumart to terminal, "
-	opts.separator "        optionally with a specified image size"
-	opts.separator ""
-	opts.separator "Options"
+	opts.separator %{
+Commands
+  list to terminal
+      search[-song|-album|-artist] <pattern>
+      ss|sl|sr <pattern>
+  clear queue and immediately start playing
+      play[-song|-album|-artist|-playlist] <pattern>
+      ps|pl|pr|pp <pattern>
+  add to end of queue
+      queue-last[-song|-album|-artist|-playlist] <pattern>
+      ls|ll|lr|lp <pattern>
+  add after the current song
+      queue-next[-song|-album|-artist|-playlist] <pattern>
+      ns|nl|nr|np <pattern>
+  albumart-url [size] - print url of albumart to terminal, 
+      optionally with a specified image size
+
+Options }
 
 	usage = opts
 

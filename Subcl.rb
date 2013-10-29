@@ -98,7 +98,7 @@ class Subcl
 		end
 	end
 
-	#prints an error that no matches were found on the fitting channel, the exits with code 2
+	#print an error that no matches were found, then exit with code 2
 	def noMatches(what = nil)
 		if what
 			message = "No matching #{what}"

@@ -19,11 +19,14 @@ Setup
 -----
 .subcl file in your home directory (~/.subcl) contains:
 
-	server <name of your subsonic server>
+	server <url of your subsonic server>
 	username <username for subsonic>
 	password <password for subsonic>
-	max_search_results <maximum search results, optional, default 20>
-	notify_method <notification system to use, optional, default auto>
+
+Optionally it may contain:
+
+	max_search_results <number, maximum search results, default 20>
+	notify_method <one of below, notification system to use, default auto>
 		auto - autmatically detect notifcation binary (may be slower)
 		growlnotify
 		notify-send
@@ -31,34 +34,45 @@ Setup
 Currently supported commands
 ----------------------------
 	search: print entries to console
-	sr | search-aRtist [pattern]
-	sl | search-aLbum [pattern]
-	ss | search-song [pattern]
+	sr | search-aRtist SEARCH_QUERY
+	sl | search-aLbum SEARCH_QUERY
+	ss | search-song SEARCH_QUERY
 
 	play: clear play queue and immediately start playing this
-	pr | play-aRtist [pattern]
-	pl | play-aLbum [pattern]
-	ps | play-song [pattern]
-	pp | play-playlist [pattern]
+	pr | play-aRtist SEARCH_QUERY
+	pl | play-aLbum SEARCH_QUERY
+	ps | play-song SEARCH_QUERY
+	pp | play-playlist SEARCH_QUERY
 
 	queue-next: add this after the current song
-	nr | queue-next-aRtist [pattern]
-	nl | queue-next-aLbum [pattern]
-	ns | queue-next-song [pattern]
-	np | queue-next-playlist [pattern]
+	nr | queue-next-aRtist SEARCH_QUERY
+	nl | queue-next-aLbum SEARCH_QUERY
+	ns | queue-next-song SEARCH_QUERY
+	np | queue-next-playlist SEARCH_QUERY
 
 	queue-last: add this to the end of the play queue
-	lr | queue-next-aRtist [pattern]
-	ll | queue-next-aLbum [pattern]
-	ls | queue-next-song [pattern]
-	lp | queue-next-playlist [pattern]
+	lr | queue-next-aRtist SEARCH_QUERY
+	ll | queue-next-aLbum SEARCH_QUERY
+	ls | queue-next-song SEARCH_QUERY
+	lp | queue-next-playlist SEARCH_QUERY
 
-When choosing interactively, you can choose numbers, ranges, or 'all'
+	albumart-url [size] : Prints the url for the albumart of the currently
+	playing song to stdout. Be ware that the url will contain your basic auth
+	credentials in clear text.
 
-	Examples:
+When choosing interactively, you can choose numbers, ranges, or 'all'. Examples:
+
 	5
 	3, 5, 8-12
 	all
+
+Notification System
+-------------------
+By default, if you call subcl from a place where it cannot output anything to
+the tty (such as a shell script or a launcher), it will try to use your
+system's notification mechanism to notify you of errors. This can be configured
+via the notify_method in `~/.subcl`.
+
 
 Status Codes
 ------------
@@ -69,8 +83,8 @@ Issues
 ------
 - no support for HTTPS (does mpd even support this?)
 - password is stored in plain text
-- no control over the mpc playlist, and the mpc playlist only shows URLs for
-	songs it hasn't played yet (a possible fix for this might be generating
+- limited control over the mpd playlist, and the mpc playlist only shows URLs
+	for songs it hasn't played yet (a possible fix for this might be generating
 			playlists containing the ID3 tags and feeding it to mpd instead of the
 			pure URLs)
 
@@ -78,14 +92,11 @@ Coming up
 ---------
 - podcasts
 - search-playlist command or something similar
-- logging / integration of notification system for error messages which can't be
-	sent to tty
 - make search command more useful
+- random-songs, random-album, random-artist, random-playlist command
 - wildcard play command (don't have to specify if it's a song, an album...)
 	with configurable order for non-interactive mode (First, if it's a song name,
 			play this song. otherwise, if it's an album...)
-- additional queue command to add after the current song instead of the end of
-	the list
 - passing through of non-subcl commands (play, toggle, random) to mpc, so you
 	don't have to remember which executable to call
 - configurable verbosity
