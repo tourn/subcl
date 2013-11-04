@@ -17,13 +17,36 @@ class Subcl
 		#overwrite defaults with given options
 		@options.merge! options
 
-		@subsonic = Subsonic.new	
-		@subsonic.interactive = @options[:interactive]
+		begin
+		@configs = Configs.new
+		rescue => e
+			$stderr.puts "Error initializing config"
+			$stderr.puts e.message
+			exit
+		end
 
 		@player = Mpc.new
 		@player.debug = @options[:debug]
 
-		@notifier = Notify.new Configs.new.notifyMethod
+		@notifier = Notify.new @configs.notifyMethod
+
+		@display = {
+			:song => proc { |song|
+				"#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
+			},
+			:album => proc { |album|
+				"#{album['name']} by #{album['artist']} in #{album['year']}"
+			},
+			:artist => proc { |artist|
+				"#{artist['name']}"
+			},
+			:playlist => proc { |playlist|
+				"#{playlist[:name]} by #{playlist[:owner]}"
+			},
+		}
+
+		@subsonic = Subsonic.new(@configs, @display)
+		@subsonic.interactive = @options[:interactive]
 	end
 
 	def albumartUrl(size = nil)
@@ -71,7 +94,7 @@ class Subcl
 			noMatches("song")
 		else
 			songs.each do |song|
-				puts "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
+				puts @display[:song].call(song)
 			end
 		end
 	end
@@ -82,7 +105,7 @@ class Subcl
 			noMatches("album")
 		else
 			albums.each do |album|
-				puts "#{album['name']} by #{album['artist']} in #{album['year']}"
+				puts @display[:album].call(album)
 			end
 		end
 	end
@@ -93,7 +116,7 @@ class Subcl
 			noMatches("artist")
 		else
 			artists.each do |artist|
-				puts "#{artist['name']}"
+				puts @display[:artist].call(artist)
 			end
 		end
 	end

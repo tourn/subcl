@@ -1,6 +1,9 @@
 class Picker
 	def initialize(ary)
 		@available = ary
+		if ary.empty? then
+			raise ArgumentError, "Cannot initialize Picker with an empty array!"
+		end
 	end
 
 	def pick

@@ -13,15 +13,10 @@ class Subsonic
 
 	attr_accessor :interactive
 
-	def initialize
-		begin
-			#TODO pull configs up into Subcl
-			@configs = Configs.new
-		rescue => e
-			$stderr.puts e.message
-			exit
-		end
-
+	def initialize(configs, display)
+		@configs = configs
+		#hash containing procs for displaying songs, artists, albums
+		@display = display
 		@interactive = true
 	end
 
@@ -34,7 +29,7 @@ class Subsonic
 			return []
 		end
 
-		return whichDidYouMean(searchResults) {|e| "#{e['title']} by #{e['artist']} on #{e['album']} (#{e['year']})"}
+		return whichDidYouMean(searchResults, &@display[:song])
 
 	end
 
@@ -48,7 +43,7 @@ class Subsonic
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults) {|e| "#{e['name']} by #{e['artist']} in #{e['year']}"}
+		picks = whichDidYouMean(searchResults, &@display[:album])
 		songs = []
 		picks.each do |album|
 			doc = query('getAlbum.view', {:id => album['id']})
@@ -69,7 +64,7 @@ class Subsonic
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults) {|e| "#{e['name']}"}
+		picks = whichDidYouMean(searchResults, &@display[:artist])
 		songs = []
 		picks.each do |artist|
 			doc = query('getArtist.view', {:id => artist['id']})
@@ -84,9 +79,8 @@ class Subsonic
 		songs
 	end
 
-	def whichDidYouMean(array)
-
-		if array.length == 1
+	def whichDidYouMean(array, &displayProc)
+		if array.empty? or array.length == 1
 			return array
 		end
 
@@ -94,9 +88,7 @@ class Subsonic
 			return [array.first]
 		end
 
-		#&Proc.new passes down the block given to this method
-		#http://mudge.name/2011/01/26/passing-blocks-in-ruby-without-block.html
-		return Picker.new(array).pick(&Proc.new)
+		return Picker.new(array).pick(&displayProc)
 
 	end
 
@@ -145,7 +137,7 @@ class Subsonic
 			end
 		end
 
-		whichDidYouMean(out) { |e| "#{e[:name]} by #{e[:owner]}"}
+		whichDidYouMean(out, &@display[:playlist])
 	end
 
 	#returns all songs from playlist(s) matching the name
