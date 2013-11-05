@@ -1,9 +1,11 @@
 class Notify
 
 	SupportedMethods = %w{notify-send growlnotify}
+	Icon = File.dirname(__FILE__) + "/icon.png"
 
 	def initialize(notifyMethod)
 		@method = nil
+		puts "icon: #{Icon}"
 
 		case notifyMethod
 		when nil
@@ -45,9 +47,9 @@ class Notify
 		when nil
 			#great, do nothing
 		when "notify-send"
-			system("notify-send --urgency critical '#{message}'")
+			system("notify-send --icon #{Icon} --urgency critical Subcl '#{message}'")
 		when "growlnotify"
-			system("growlnotify --title Subcl --message '#{message}'")
+			system("growlnotify --image #{Icon} --title Subcl --message '#{message}'")
 		end
 	end
 end
