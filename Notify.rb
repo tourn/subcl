@@ -5,7 +5,6 @@ class Notify
 
 	def initialize(notifyMethod)
 		@method = nil
-		puts "icon: #{Icon}"
 
 		case notifyMethod
 		when nil
