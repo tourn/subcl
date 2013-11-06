@@ -1,6 +1,6 @@
 class Notify
 
-	SupportedMethods = %w{notify-send growlnotify}
+	SupportedMethods = %w{notify-send growlnotify awesome-client}
 	Icon = File.dirname(__FILE__) + "/icon.png"
 
 	def initialize(notifyMethod)
@@ -49,6 +49,18 @@ class Notify
 			system("notify-send --icon #{Icon} --urgency critical Subcl '#{message}'")
 		when "growlnotify"
 			system("growlnotify --image #{Icon} --title Subcl --message '#{message}'")
+		when "awesome-client"
+			naughtyCmd = %Q{
+				naughty.notify({
+					title='subcl',
+					text='#{message}',
+					icon='#{Icon}',
+					timeout = 10
+				}) 
+			}
+			naughtyCmd.gsub! "\n" " "
+
+			system(%Q{echo "#{naughtyCmd}" | awesome-client})
 		end
 	end
 end

@@ -111,6 +111,8 @@ when "albumart-url"
 	puts subcl.albumartUrl(arg)
 when /album-list|al/
 	subcl.subsonic.albumlist
+when /test-notify/
+	subcl.testNotify
 else
 	if options[:tty] then
 		puts usage

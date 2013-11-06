@@ -137,5 +137,9 @@ class Subcl
 		exit 2 
 	end
 
+	def testNotify
+		@notifier.notify("Hi!")
+	end
+
 
 end
