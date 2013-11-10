@@ -47,6 +47,7 @@ class Subcl
 
 		@subsonic = Subsonic.new(@configs, @display)
 		@subsonic.interactive = @options[:interactive]
+
 	end
 
 	def albumartUrl(size = nil)
@@ -62,6 +63,13 @@ class Subcl
 		}
 		args.merge! inArgs
 
+		if @options[:current]
+			unless [:album, :artist].include? type
+				raise ArgumentError, "'current' option can only be used with albums or artists."
+			end
+			query = @player.current type
+		end
+
 		songs = case type
 						when :song
 							@subsonic.song(query)
@@ -71,6 +79,12 @@ class Subcl
 							@subsonic.artistSongs(query)
 						when :playlist
 							@subsonic.playlistSongs(query)
+						when :randomSong
+							begin
+								@subsonic.randomSongs(query)
+							rescue ArgumentError
+								raise ArgumentError, "random-songs takes an integer as argument"
+							end
 						end
 
 		if songs.empty?

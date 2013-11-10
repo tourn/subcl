@@ -53,10 +53,16 @@ class Mpc
 		end
 	end
 
-	#returns the streaming url of the currently playing file
-	def current
-		`mpc --format '%file%' current`
+	#returns info about the currently playing file
+	def current(info = :url)
+		filter =case info
+		when :url
+			'%file%'
+		when :album
+			'%album%'
+		when :artist
+			'%artist%'
+		end
+		`mpc --format '#{filter}' current`
 	end
-
-	#TODO use method_missing for clear, play and everything that will come
 end

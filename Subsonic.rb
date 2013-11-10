@@ -181,6 +181,21 @@ class Subsonic
 		end
 	end
 
+	def randomSongs(count)
+		if count.empty?
+			count = 10
+		else
+			#throw an exception if it's not an int
+			count = Integer(count)
+		end
+		out = []
+		doc = query('getRandomSongs.view', {:size => count})
+		doc.elements.each('subsonic-response/randomSongs/song') do |song|
+			out << Song.new(self, song.attributes)
+		end
+		out
+	end
+
 	private
 		def search(query, type)
 			out = []

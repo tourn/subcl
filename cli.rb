@@ -26,6 +26,9 @@ Commands
   clear queue and immediately start playing
       play[-song|-album|-artist|-playlist] <pattern>
       ps|pl|pr|pp <pattern>
+  clear queue and immediately start playing random songs
+			play-random <count, default 10>
+			r <count, default 10>
   add to end of queue
       queue-last[-song|-album|-artist|-playlist] <pattern>
       ls|ll|lr|lp <pattern>
@@ -47,6 +50,9 @@ Options }
 	end
 	opts.on('-s', '--shuffle', "Shuffle playlist before queueing") do
 		options[:shuffle] = true
+	end
+	opts.on('-c', '--current', 'Use info currently playing song instead of commandline argument') do
+		options[:current] = true
 	end
 	opts.on('-h', '--help', 'Display this screen') do
 		puts opts
@@ -84,6 +90,8 @@ when /play-album|pl/
 	subcl.queue(arg, :album, {:play => true, :clear => true})
 when /play-playlist|pp/
 	subcl.queue(arg, :playlist, {:play => true, :clear => true})
+when /play-random|r/
+	subcl.queue(arg, :randomSong, {:play => true, :clear => true})
 when /queue-next-song|ns/
 	subcl.queue(arg, :song, {:insert => true})
 when /queue-next-artist|nr/

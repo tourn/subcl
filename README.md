@@ -1,5 +1,6 @@
 Subcl! a command-line client for [Subsonic][sub]
 ==================================================
+Based on [winsbe01/subcl][origin]
 
 Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies
 heavily on mpc, so much in fact, that you still have to use the mpc command for
@@ -43,6 +44,7 @@ Currently supported commands
 	pl | play-aLbum SEARCH_QUERY
 	ps | play-song SEARCH_QUERY
 	pp | play-playlist SEARCH_QUERY
+	r  | play-random COUNT (default 10)
 
 	queue-next: add this after the current song
 	nr | queue-next-aRtist SEARCH_QUERY
@@ -104,3 +106,4 @@ Coming up
 - interactive library browser using ncurses
 
 [sub]: http://subsonic.org
+[origin]: https://github.com/winsbe01/subcl
