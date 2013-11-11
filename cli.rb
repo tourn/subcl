@@ -82,44 +82,44 @@ arg = ARGV[1,ARGV.length-1].join(" ") #put rest of args together so no quotes ar
 
 
 case ARGV[0].downcase
-when /play-song|ps/
+when /^play-song$|^ps$/
 	subcl.queue(arg, :song, {:play => true, :clear => true})
-when /play-artist|pr/
+when /^play-artist$|^pr$/
 	subcl.queue(arg, :artist, {:play => true, :clear => true})
-when /play-album|pl/
+when /^play-album$|^pl$/
 	subcl.queue(arg, :album, {:play => true, :clear => true})
-when /play-playlist|pp/
+when /^play-playlist$|^pp$/
 	subcl.queue(arg, :playlist, {:play => true, :clear => true})
-when /play-random|r/
+when /^play-random$|^r$/
 	subcl.queue(arg, :randomSong, {:play => true, :clear => true})
-when /queue-next-song|ns/
+when /^queue-next-song$|^ns$/
 	subcl.queue(arg, :song, {:insert => true})
-when /queue-next-artist|nr/
+when /^queue-next-artist$|^nr$/
 	subcl.queue(arg, :artist, {:insert => true})
-when /queue-next-album|nl/
+when /^queue-next-album$|^nl$/
 	subcl.queue(arg, :album, {:insert => true})
-when /queue-next-playlist|np/
+when /^queue-next-playlist$|^np$/
 	subcl.queue(arg, :playlist, {:insert => true})
-when /queue-last-song|ls/
+when /^queue-last-song$|^ls$/
 	subcl.queue(arg, :song)
-when /queue-last-artist|lr/
+when /^queue-last-artist$|^lr$/
 	subcl.queue(arg, :artist)
-when /queue-last-album|ll/
+when /^queue-last-album$|^ll$/
 	subcl.queue(arg, :album)
-when /queue-last-playlist|lp/
+when /^queue-last-playlist$|^lp$/
 	subcl.queue(arg, :playlist)
-when /search-song|ss/
+when /^search-song$|^ss$/
 	subcl.searchSong(arg)
-when /search-artist|sr/
+when /^search-artist$|^sr$/
 	subcl.searchArtist(arg)
-when /search-album|sl/
+when /^search-album$|^sl$/
 	subcl.searchAlbum(arg)
 when "albumart-url"
 	arg = nil if arg.empty?
 	puts subcl.albumartUrl(arg)
-when /album-list|al/
+when /^album-list$|^al$/
 	subcl.subsonic.albumlist
-when /test-notify/
+when "test-notify"
 	subcl.testNotify
 else
 	if options[:tty] then

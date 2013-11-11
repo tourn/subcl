@@ -96,7 +96,6 @@ Coming up
 - search-playlist command or something similar
 - structure output based on terminal width
 - make search command more useful
-- random-songs, random-album, random-artist, random-playlist command
 - wildcard play command (don't have to specify if it's a song, an album...)
 	with configurable order for non-interactive mode (First, if it's a song name,
 			play this song. otherwise, if it's an album...)
