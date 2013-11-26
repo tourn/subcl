@@ -183,7 +183,7 @@ class Subsonic
 
 	def randomSongs(count)
 		if count.empty?
-			count = 10
+			count = @configs.randomSongCount
 		else
 			#throw an exception if it's not an int
 			count = Integer(count)

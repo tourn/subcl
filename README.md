@@ -31,6 +31,8 @@ Optionally it may contain:
 		auto - autmatically detect notifcation binary (may be slower)
 		growlnotify
 		notify-send
+	random_song_count <number, count songs that are fetched for random-songs
+		without argument, default 10>
 
 Currently supported commands
 ----------------------------
@@ -44,7 +46,7 @@ Currently supported commands
 	pl | play-aLbum SEARCH_QUERY
 	ps | play-song SEARCH_QUERY
 	pp | play-playlist SEARCH_QUERY
-	r  | play-random COUNT (default 10)
+	r  | play-random COUNT (default random_song_count)
 
 	queue-next: add this after the current song
 	nr | queue-next-aRtist SEARCH_QUERY

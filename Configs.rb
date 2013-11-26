@@ -8,6 +8,7 @@ class Configs
 	attr_reader :notifyMethod
 	attr_reader :appname
 	attr_reader :app_version
+	attr_reader :randomSongCount
 
 	def initialize
 		@app_version = '1.0'
@@ -16,6 +17,7 @@ class Configs
 		@appname = 'subcl'
 		@max_search_results = 20 #default value
 		@notifyMethod = "auto"
+		@randomSongCount = 10
 
 		@filename = File.expand_path("~/.subcl")
 		unless File.file?(@filename)
@@ -23,6 +25,7 @@ class Configs
 		end
 
 		readConfigs
+		#TODO optimally don't ping here - do this when the notification system is initialized
 		ping
 	end
 
@@ -41,6 +44,8 @@ class Configs
 				@max_search_results = spl[1]
 			elsif spl[0].eql? "notify_method"
 				@notifyMethod = spl[1]
+			elsif spl[0].eql? "random_song_count"
+				@randomSongCount = spl[1]
 			end
 		end
 
