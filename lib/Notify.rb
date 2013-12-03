@@ -1,7 +1,7 @@
 class Notify
 
 	SupportedMethods = %w{notify-send growlnotify awesome-client}
-	Icon = File.dirname(__FILE__) + "/icon.png"
+	Icon = File.dirname(__FILE__) + "/../share/icon.png"
 
 	def initialize(notifyMethod)
 		@method = nil
@@ -40,7 +40,6 @@ class Notify
 		end
 	end
 
-	#TODO add a subsonic icon
 	def notify(message)
 		case @method
 		when nil

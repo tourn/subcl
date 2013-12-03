@@ -1,4 +1,6 @@
-require_relative './Subcl'
+#!/usr/bin/env ruby
+
+require_relative '../lib/Subcl'
 require 'optparse'
 
 #don't throw a huge stacktrace
