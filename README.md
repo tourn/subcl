@@ -94,6 +94,11 @@ Issues
 
 Coming up
 ---------
+- Tests!
+- Dropping dependency of mpc, talking directly to mpd
+
+Ideas
+-----
 - podcasts
 - search-playlist command or something similar
 - structure output based on terminal width
