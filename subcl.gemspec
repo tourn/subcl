@@ -13,5 +13,6 @@ Gem::Specification.new do |s|
 	s.platform = Gem::Platform::RUBY
 	s.homepage = 'https://github.com/Tourniquet/subcl'
 	s.required_ruby_version = '>= 1.9.2'
+	s.licenses = ['MIT']
 end
 
