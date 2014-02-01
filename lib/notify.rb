@@ -14,7 +14,7 @@ class Notify
 		when "auto"
 			#auto detect notifier lib
 			SupportedMethods.each do |method|
-				@binary = getBinary(method)
+				@binary = get_binary(method)
 				unless @binary.nil?
 					@method = method
 					break
@@ -25,13 +25,13 @@ class Notify
 			unless SupportedMethods.include? notifyMethod
 				raise ArgumentError, "Notification method #{notifyMethod} is not supported"
 			end
-			@binary = getBinary(notifyMethod) 
+			@binary = get_binary(notifyMethod) 
 			@method = notifyMethod
 			raise ArgumentError, "No binary found for #{notifyMethod} in PATH" if @binary.nil?
 		end
 	end
 
-	def getBinary(name)
+	def get_binary(name)
 		binary = `which #{name}`.chomp
 		if $?.success?
 			binary

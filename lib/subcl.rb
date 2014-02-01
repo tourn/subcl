@@ -50,9 +50,9 @@ class Subcl
 
 	end
 
-	def albumartUrl(size = nil)
+	def albumart_url(size = nil)
 		current = @player.current
-		puts @subsonic.albumartUrl(current, size) unless current.empty?
+		puts @subsonic.albumart_url(current, size) unless current.empty?
 	end
 
 	def queue(query, type, inArgs = {})
@@ -74,21 +74,21 @@ class Subcl
 						when :song
 							@subsonic.song(query)
 						when :album
-							@subsonic.albumSongs(query)
+							@subsonic.album_songs(query)
 						when :artist
-							@subsonic.artistSongs(query)
+							@subsonic.artist_songs(query)
 						when :playlist
-							@subsonic.playlistSongs(query)
+							@subsonic.playlist_songs(query)
 						when :randomSong
 							begin
-								@subsonic.randomSongs(query)
+								@subsonic.random_songs(query)
 							rescue ArgumentError
 								raise ArgumentError, "random-songs takes an integer as argument"
 							end
 						end
 
 		if songs.empty?
-			noMatches
+			no_matches
 		end
 
 		@player.clear if args[:clear]
@@ -102,10 +102,10 @@ class Subcl
 		@player.play if args[:play]
 	end
 
-	def searchSong(name)
+	def search_song(name)
 		songs = @subsonic.songs(name)
 		if(songs.size == 0)
-			noMatches("song")
+			no_matches("song")
 		else
 			songs.each do |song|
 				puts @display[:song].call(song)
@@ -113,10 +113,10 @@ class Subcl
 		end
 	end
 
-	def searchAlbum(name)
+	def search_album(name)
 		albums = @subsonic.albums(name)
 		if(albums.size == 0)
-			noMatches("album")
+			no_matches("album")
 		else
 			albums.each do |album|
 				puts @display[:album].call(album)
@@ -124,10 +124,10 @@ class Subcl
 		end
 	end
 
-	def searchArtist(name)
+	def search_artist(name)
 		artists = @subsonic.artists(name)
 		if(artists.size == 0)
-			noMatches("artist")
+			no_matches("artist")
 		else
 			artists.each do |artist|
 				puts @display[:artist].call(artist)
@@ -136,7 +136,7 @@ class Subcl
 	end
 
 	#print an error that no matches were found, then exit with code 2
-	def noMatches(what = nil)
+	def no_matches(what = nil)
 		if what
 			message = "No matching #{what}"
 		else

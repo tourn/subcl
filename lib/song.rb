@@ -9,6 +9,6 @@ class Song < Hash
 
 	#returns the streaming url for a song
 	def url
-		@subsonic.songUrl(self['id'])
+		@subsonic.song_url(self['id'])
 	end
 end

@@ -24,12 +24,12 @@ class Configs
 			raise "Config file not found"
 		end
 
-		readConfigs
+		read_configs
 		#TODO optimally don't ping here - do this when the notification system is initialized
 		ping
 	end
 
-	def readConfigs
+	def read_configs
 
 		file = File.new(@filename, "r")
 		while (line = file.gets) do

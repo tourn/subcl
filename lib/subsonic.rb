@@ -29,13 +29,13 @@ class Subsonic
 			return []
 		end
 
-		return whichDidYouMean(searchResults, &@display[:song])
+		return invoke_picker(searchResults, &@display[:song])
 
 	end
 
 	#returns an array of songs for the given album name
 	#on multiple matches, the user is asked interactively for the wanted match
-	def albumSongs(name)
+	def album_songs(name)
 
 		searchResults = search(name, :album)
 
@@ -43,7 +43,7 @@ class Subsonic
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults, &@display[:album])
+		picks = invoke_picker(searchResults, &@display[:album])
 		songs = []
 		picks.each do |album|
 			doc = query('getAlbum.view', {:id => album['id']})
@@ -57,14 +57,14 @@ class Subsonic
 
 	#returns an array of song streaming urls for the given artist name
 	#on multiple matches, the user is asked interactively for the wanted match
-	def artistSongs(name)
+	def artist_songs(name)
 		searchResults = search(name, :artist)
 
 		if searchResults.length.zero?
 			return []
 		end
 
-		picks = whichDidYouMean(searchResults, &@display[:artist])
+		picks = invoke_picker(searchResults, &@display[:artist])
 		songs = []
 		picks.each do |artist|
 			doc = query('getArtist.view', {:id => artist['id']})
@@ -79,7 +79,7 @@ class Subsonic
 		songs
 	end
 
-	def whichDidYouMean(array, &displayProc)
+	def invoke_picker(array, &displayProc)
 		if array.empty? or array.length == 1
 			return array
 		end
@@ -108,7 +108,7 @@ class Subsonic
 	end
 
 	#returns all playlists
-	def allPlaylists
+	def all_playlists
 		out = []
 		doc = query('getPlaylists.view')
 		doc.elements.each('subsonic-response/playlists/playlist') do |playlist|
@@ -125,7 +125,7 @@ class Subsonic
 
 	#returns all playlists matching name
 	def playlists(name = nil)
-		all = allPlaylists
+		all = all_playlists
 		out = []
 
 		if name
@@ -137,11 +137,11 @@ class Subsonic
 			end
 		end
 
-		whichDidYouMean(out, &@display[:playlist])
+		invoke_picker(out, &@display[:playlist])
 	end
 
 	#returns all songs from playlist(s) matching the name
-	def playlistSongs(playListName)
+	def playlist_songs(playListName)
 		out = []
 		playlists(playListName).each do |playlist|
 			doc = query('getPlaylist.view', {:id => playlist[:id]})
@@ -153,19 +153,19 @@ class Subsonic
 	end
 
 	#returns the streaming URL for the song, including basic auth
-	def songUrl(songid)
-		uri = buildUrl('stream.view', {:id => songid})
-		addBasicAuth(uri)
+	def song_url(songid)
+		uri = build_url('stream.view', {:id => songid})
+		add_basic_auth(uri)
 	end
 
 	#returns the albumart URL for the song
-	def albumartUrl(streamUrl, size = nil)
+	def albumart_url(streamUrl, size = nil)
 		raise ArgumentError if streamUrl.empty?
 		id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
 		params = {:id => id};
 		params[:size] = size unless size.nil?
-		addBasicAuth(
-			buildUrl('getCoverArt.view', params)
+		add_basic_auth(
+			build_url('getCoverArt.view', params)
 		)
 	end
 
@@ -181,7 +181,7 @@ class Subsonic
 		end
 	end
 
-	def randomSongs(count)
+	def random_songs(count)
 		if count.empty?
 			count = @configs.randomSongCount
 		else
@@ -190,7 +190,7 @@ class Subsonic
 		end
 		out = []
 		doc = query('getRandomSongs.view', {:size => count})
-		doc.elements.each('subsonic-response/randomSongs/song') do |song|
+		doc.elements.each('subsonic-response/random_songs/song') do |song|
 			out << Song.new(self, song.attributes)
 		end
 		out
@@ -241,7 +241,7 @@ class Subsonic
 		end
 
 		def query(method, params = {})
-			uri = buildUrl(method, params)
+			uri = build_url(method, params)
 			req = Net::HTTP::Get.new(uri.request_uri)
 			req.basic_auth(@configs.uname, @configs.pword)
 			res = Net::HTTP.start(uri.hostname, uri.port) do |http|
@@ -275,7 +275,7 @@ class Subsonic
 			end
 		end
 
-		def buildUrl(method, params)
+		def build_url(method, params)
 			#params[:u] = @configs.uname
 			#params[:p] = @configs.pword
 			params[:v] = @configs.proto_version
@@ -288,7 +288,7 @@ class Subsonic
 		end
 
 		#adds the basic auth parameters from the config to the URI
-		def addBasicAuth(uri)
+		def add_basic_auth(uri)
 			uri.user = @configs.uname
 			uri.password = @configs.pword
 			return uri
