@@ -4,9 +4,9 @@ require 'thread'
 require 'cgi'
 include REXML
 
-require_relative 'Configs'
-require_relative 'Song'
-require_relative 'Picker'
+require_relative 'configs'
+require_relative 'song'
+require_relative 'picker'
 
 #TODO remove puts from this class; Subcl should handle this
 class Subsonic
