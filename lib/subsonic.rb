@@ -1,3 +1,8 @@
+###
+# This class interfaces with the subsonic API
+# http://www.subsonic.org/pages/api.jsp
+###
+
 require 'net/http'
 require 'rexml/document'
 require 'thread'
@@ -7,8 +12,9 @@ include REXML
 require_relative 'configs'
 require_relative 'song'
 require_relative 'picker'
+require_relative 'subcl_error'
 
-#TODO remove puts from this class; Subcl should handle this
+#TODO move picker invocation up to Subcl; this class should only handle API calls
 class Subsonic
 
   attr_accessor :interactive
@@ -169,16 +175,14 @@ class Subsonic
     )
   end
 
-  #should the need arise, this outputs the album art as binary
-  def albumart
-    $stderr.puts "Not yet implemented"
-  end
-
   def albumlist
     doc = query('getAlbumList2.view', {:type => 'random'})
+    #there must be a cleaner way to do this
+    out = []
     doc.elements.each('subsonic-response/albumList2/album') do |album|
-      puts "#{album.attributes['name']} by #{album.attributes['artist']}"
+      out << album.attributes
     end
+    return out
   end
 
   def random_songs(count)
@@ -252,10 +256,9 @@ class Subsonic
 
       #handle error response
       doc.elements.each('subsonic-response/error') do |error|
+        #TODO make the next line conditional for debug/verbose mode
         $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
-        $stderr.print "Error communicating with the Subsonic server: "
-        $stderr.puts  "#{error.attributes["message"]} (#{error.attributes["code"]})"
-        exit 1
+        raise SubclError, "#{error.attributes["message"]} (#{error.attributes["code"]})"
       end
 
       #handle http error
@@ -263,15 +266,15 @@ class Subsonic
       when '200'
         doc
       else
+        #TODO make the next line conditional for debug/verbose mode
         $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
-        $stderr.print "Error communicating with the Subsonic server: "
-        case res.code
+        msg = case res.code
         when '401'
-          $stderr.puts "HTTP 401. Might be an incorrect username/password"
+          "HTTP 401. Might be an incorrect username/password"
         else
-          $stderr.puts "HTTP #{res.code}"
+          "HTTP #{res.code}"
         end
-        exit 1
+        raise SubclError, msg
       end
     end
 
@@ -283,7 +286,6 @@ class Subsonic
       query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
       uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-      #puts "url2: #{uri}"
       uri
     end
 

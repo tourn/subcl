@@ -11,7 +11,9 @@ class Subcl
     @options = {
       :interactive => true,
       :tty => true,
-      :insert => false
+      :insert => false,
+      :out_stream => STDOUT,
+      :err_stream => STDERR
     }
 
     #overwrite defaults with given options
@@ -20,9 +22,9 @@ class Subcl
     begin
     @configs = Configs.new
     rescue => e
-      $stderr.puts "Error initializing config"
-      $stderr.puts e.message
-      exit
+      @options[:err_stream].puts "Error initializing config"
+      @options[:err_stream].puts e.message
+      exit 4
     end
 
     @player = Mpc.new
@@ -32,16 +34,16 @@ class Subcl
 
     @display = {
       :song => proc { |song|
-        "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
+        @options[:err_stream].puts "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
       },
       :album => proc { |album|
-        "#{album['name']} by #{album['artist']} in #{album['year']}"
+        @options[:err_stream].puts "#{album['name']} by #{album['artist']} in #{album['year']}"
       },
       :artist => proc { |artist|
-        "#{artist['name']}"
+        @options[:err_stream].puts "#{artist['name']}"
       },
       :playlist => proc { |playlist|
-        "#{playlist[:name]} by #{playlist[:owner]}"
+        @options[:err_stream].puts "#{playlist[:name]} by #{playlist[:owner]}"
       },
     }
 
@@ -52,7 +54,7 @@ class Subcl
 
   def albumart_url(size = nil)
     current = @player.current
-    puts @subsonic.albumart_url(current, size) unless current.empty?
+    @options[:out_stream].puts @subsonic.albumart_url(current, size) unless current.empty?
   end
 
   def queue(query, type, inArgs = {})
@@ -108,7 +110,7 @@ class Subcl
       no_matches("song")
     else
       songs.each do |song|
-        puts @display[:song].call(song)
+        @display[:song].call(song)
       end
     end
   end
@@ -119,7 +121,7 @@ class Subcl
       no_matches("album")
     else
       albums.each do |album|
-        puts @display[:album].call(album)
+        @display[:album].call(album)
       end
     end
   end
@@ -130,7 +132,7 @@ class Subcl
       no_matches("artist")
     else
       artists.each do |artist|
-        puts @display[:artist].call(artist)
+        @display[:artist].call(artist)
       end
     end
   end
@@ -144,7 +146,7 @@ class Subcl
     end
 
     if @options[:tty]
-      $stderr.puts message
+      @options[:err_stream].puts message
     else
       @notifier.notify(message)
     end
@@ -153,6 +155,10 @@ class Subcl
 
   def testNotify
     @notifier.notify("Hi!")
+  end
+
+  def albumlist
+    @subsonic.albumlist.each &@display[:album]
   end
 
 

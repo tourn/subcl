@@ -13,7 +13,7 @@ class Picker
     @available.each do |elem|
       choices[i] = elem
       $stderr.print "[#{i}] "
-      $stderr.puts yield(elem)
+      yield(elem)
       i = i + 1
     end
 

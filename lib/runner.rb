@@ -65,11 +65,13 @@ class Runner
     end.parse! args
   end
 
-  def run(args, out_stream = STDOUT, error_stream = STDERR)
+  def run(args, out_stream = STDOUT, err_stream = STDERR)
+    @options[:out_stream]  = out_stream
+    @options[:err_stream]  = err_stream
     parse_options!(args)
 
     unless args.size >= 1
-      error_stream.puts usage
+      err_stream.puts usage
       exit 3
     end
 
@@ -121,12 +123,12 @@ class Runner
       arg = nil if arg.empty?
       out_stream.puts subcl.albumartUrl(arg)
     when /^album-list$|^al$/
-      subcl.subsonic.albumlist
+      subcl.albumlist
     when "test-notify"
       subcl.testNotify
     else
       if @options[:tty] then
-        error_stream.puts usage
+        err_stream.puts usage
       else
         subcl.notifier.notify "Unrecognized command"
       end

@@ -83,6 +83,7 @@ Status Codes
 - 1: An error occured communicating with the server
 - 2: Your query returned no results
 - 3: Invalid command line arguments
+- 4: Broken configuration
 
 Issues
 ------

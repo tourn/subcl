@@ -1,0 +1,1 @@
+class SubclError < StandardError; end
