@@ -1,0 +1,4 @@
+server http://example.com
+username foo
+password bar
+some_invalid_option zzz

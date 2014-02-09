@@ -57,7 +57,7 @@ class Runner
         exit
       end
       opts.on("--version", "Print version information") do
-        out_stream.puts Configs.new.app_version
+        out_stream.puts Configs.new[:app_version]
         exit
       end
 

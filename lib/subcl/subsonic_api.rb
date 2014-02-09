@@ -12,18 +12,21 @@ include REXML
 #TODO move picker invocation up to Subcl; this class should only handle API calls
 class SubsonicAPI
 
-  attr_accessor :interactive
-
   def initialize(configs)
     @configs = configs
-    @display = {} #TODO get rid of this
-    @interactive = true
   end
 
   #returns an array of songs for the given song name
   def song(name)
     search(name, :song)
   end
+
+  #return an array of albums matching the given name
+  def albums(name)
+    search(name, :album)
+  end
+
+  #TODO make something to get songs from a list of albums/artists
 
   #returns an array of songs for the given album name
   def album_songs(name)
