@@ -5,60 +5,38 @@
 
 require 'net/http'
 require 'rexml/document'
-require 'thread'
+require 'thread' #Do I need this?
 require 'cgi'
 include REXML
 
-require_relative 'configs'
-require_relative 'song'
-require_relative 'picker'
-require_relative 'subcl_error'
-
 #TODO move picker invocation up to Subcl; this class should only handle API calls
-class Subsonic
+class SubsonicAPI
 
   attr_accessor :interactive
 
-  def initialize(configs, display)
+  def initialize(configs)
     @configs = configs
-    #hash containing procs for displaying songs, artists, albums
-    @display = display
+    @display = {} #TODO get rid of this
     @interactive = true
   end
 
-  #returns an array of songs for the given album name
-  #on multiple matches, the user is asked interactively for the wanted match
+  #returns an array of songs for the given song name
   def song(name)
-    searchResults = search(name, :song)
-
-    if searchResults.length.zero?
-      return []
-    end
-
-    return invoke_picker(searchResults, &@display[:song])
-
+    search(name, :song)
   end
 
   #returns an array of songs for the given album name
-  #on multiple matches, the user is asked interactively for the wanted match
   def album_songs(name)
-
     searchResults = search(name, :album)
 
-    if searchResults.length.zero?
-      return []
-    end
-
-    picks = invoke_picker(searchResults, &@display[:album])
-    songs = []
-    picks.each do |album|
+    searchResults.collect_concat do |album|
       doc = query('getAlbum.view', {:id => album['id']})
-      doc.elements.each('subsonic-response/album/song') do |element|
-        songs << Song.new(self, element.attributes)
+      doc.elements.collect('subsonic-response/album/song') do |songEntry|
+        song = songEntry.attributes
+        song[:stream_url] = nil #TODO
+        song
       end
     end
-
-    songs
   end
 
   #returns an array of song streaming urls for the given artist name
@@ -200,100 +178,99 @@ class Subsonic
     out
   end
 
-  private
-    def search(query, type)
-      out = []
+  def search(query, type)
+    params = {
+      :query => query,
+      :songCount => 0,
+      :albumCount => 0,
+      :artistCount => 0,
+    }
 
-      params = {
-        :query => query,
-        :songCount => 0,
-        :albumCount => 0,
-        :artistCount => 0,
-      }
-
-      case type
-      when :artist
-        params[:artistCount] = @configs.max_search_results
-      when :album
-        params[:albumCount] = @configs.max_search_results
-      when :song
-        params[:songCount] = @configs.max_search_results
-      when :any
-        #XXX or do we now use max/3 for each?
-        params[:songCount] = @configs.max_search_results
-        params[:albumCount] = @configs.max_search_results
-        params[:artistCount] = @configs.max_search_results
-      end
-
-      doc = query('search3.view', params)
-
-      #TODO find proper variable names. seriously.
-      ['artist','album','song'].each do |entityName|
-        doc.elements.each("subsonic-response/searchResult3/#{entityName}") do |entity|
-          ob = nil
-          if entityName == 'song'
-            ob = Song.new self, entity.attributes
-          else
-            ob = entity.attributes
-            ob['type'] = entityName
-          end
-          out << ob
-        end
-      end
-
-      out
+    max = @configs[:max_search_results]
+    case type
+    when :artist
+      params[:artistCount] = max
+    when :album
+      params[:albumCount] = max
+    when :song
+      params[:songCount] = max
+    when :any
+      #XXX or do we now use max/3 for each?
+      params[:songCount] = max
+      params[:albumCount] = max
+      params[:artistCount] = max
     end
 
-    def query(method, params = {})
-      uri = build_url(method, params)
-      req = Net::HTTP::Get.new(uri.request_uri)
-      req.basic_auth(@configs.uname, @configs.pword)
-      res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-        http.request(req)
-      end
+    doc = query('search3.view', params)
 
-      doc = Document.new(res.body)
-
-      #handle error response
-      doc.elements.each('subsonic-response/error') do |error|
-        #TODO make the next line conditional for debug/verbose mode
-        $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
-        raise SubclError, "#{error.attributes["message"]} (#{error.attributes["code"]})"
-      end
-
-      #handle http error
-      case res.code
-      when '200'
-        doc
-      else
-        #TODO make the next line conditional for debug/verbose mode
-        $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
-        msg = case res.code
-        when '401'
-          "HTTP 401. Might be an incorrect username/password"
+    #TODO find proper variable names. seriously.
+    ['artist','album','song'].collect_concat do |entityName|
+      doc.elements.collect("subsonic-response/searchResult3/#{entityName}") do |entity|
+        if entityName == 'song'
+          song = entity.attributes
+          song['type'] = :song
+          song
         else
-          "HTTP #{res.code}"
+          out = entity.attributes
+          out['type'] = entityName
+          out
         end
-        raise SubclError, msg
       end
     end
+  end
 
-    def build_url(method, params)
-      #params[:u] = @configs.uname
-      #params[:p] = @configs.pword
-      params[:v] = @configs.proto_version
-      params[:c] = @configs.appname
-      query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
+  def query(method, params = {})
+    uri = build_url(method, params)
+    LOGGER.debug "query: #{uri} (basic auth sent per HTTP header)"
 
-      uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-      uri
+    req = Net::HTTP::Get.new(uri.request_uri)
+    req.basic_auth(@configs.uname, @configs.pword)
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
     end
 
-    #adds the basic auth parameters from the config to the URI
-    def add_basic_auth(uri)
-      uri.user = @configs.uname
-      uri.password = @configs.pword
-      return uri
+    doc = Document.new(res.body)
+
+    LOGGER.debug { "response: " + doc.to_s }
+
+    #handle error response
+    doc.elements.each('subsonic-response/error') do |error|
+      raise SubclError, "#{error.attributes["message"]} (#{error.attributes["code"]})"
     end
+
+    #handle http error
+    case res.code
+    when '200'
+      doc
+    else
+      #TODO make the next line conditional for debug/verbose mode
+      $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
+      msg = case res.code
+      when '401'
+        "HTTP 401. Might be an incorrect username/password"
+      else
+        "HTTP #{res.code}"
+      end
+      raise SubclError, msg
+    end
+  end
+
+  def build_url(method, params)
+    #params[:u] = @configs.uname
+    #params[:p] = @configs.pword
+    params[:v] = @configs.proto_version
+    params[:c] = @configs.appname
+    query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
+
+    uri = URI("#{@configs.server}/rest/#{method}?#{query}")
+    uri
+  end
+
+  #adds the basic auth parameters from the config to the URI
+  def add_basic_auth(uri)
+    uri.user = @configs.uname
+    uri.password = @configs.pword
+    return uri
+  end
 
 end

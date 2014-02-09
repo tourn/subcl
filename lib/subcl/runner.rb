@@ -1,5 +1,4 @@
 require 'optparse'
-require_relative 'subcl'
 
 class Runner
   def initialize

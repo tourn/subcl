@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require 'subcl'
+
+if ARGV.empty?
+  puts "Usage: subcl-api <method> [opt1=val1 [opt2=val2]...]"
+  exit 1
+end
+
+api = SubsonicAPI.new(Configs.new)
+method = ARGV.shift
+method += ".view" unless method.end_with? ".view"
+params = Hash[ARGV.collect { |arg| arg.split('=') }]
+
+LOGGER.level = Logger::INFO
+
+begin
+  puts api.query(method, params)
+rescue SubclError => e
+  $stderr.puts e.message
+end
+

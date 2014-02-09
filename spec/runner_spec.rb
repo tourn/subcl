@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../lib/runner'
 
 describe Runner do
   before :each do

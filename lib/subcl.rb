@@ -6,7 +6,7 @@ require 'subcl/runner'
 require 'subcl/song'
 require 'subcl/subcl'
 require 'subcl/subcl_error'
-require 'subcl/subsonic'
+require 'subcl/subsonic_api'
 
 require 'logger'
 

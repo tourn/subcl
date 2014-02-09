@@ -1,7 +1,3 @@
-require_relative 'mpc'
-require_relative 'subsonic'
-require_relative 'configs'
-require_relative 'notify'
 
 class Subcl
   attr_reader :player, :subsonic, :notifier
