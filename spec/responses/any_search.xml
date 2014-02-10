@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
+  <searchResult3>
+    <artist albumCount='22' coverArt='ar-45' id='45' name='Nightwish'/>
+    <album artist='Nightwish' artistId='45' coverArt='al-128' created='2012-10-23T19:03:52' duration='4490' genre='Metal' id='128' name='Imaginaerum' songCount='13' year='2011'/>
+    <song album='Walking In The Air (single)' albumId='138' artist='Nightwish' artistId='45' bitRate='192' contentType='audio/mpeg' coverArt='1543' created='2012-10-23T19:04:09' duration='256' genre='Symphonic Metal' id='1577' isDir='false' isVideo='false' parent='1543' path='Nightwish/Singles/Nightwish - 1999 - Walking In The Air/Nightwish - 02 - Nightquest.mp3' size='6171799' suffix='mp3' title='Nightquest' track='2' type='music' year='1999'/>
+  </searchResult3>
+</subsonic-response>

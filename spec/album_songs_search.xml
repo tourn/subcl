@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
-  <searchResult3>
-    <song album='A Voice Within' albumId='784' artist='Intervals' artistId='138' bitRate='192' contentType='audio/mpeg' created='2014-02-06T17:08:20' duration='304' genre='Progressive Metal' id='11048' isDir='false' isVideo='false' parent='11049' path='Intervals/Intervals - A Voice Within/01 Ephemeral.mp3' size='7305960' suffix='mp3' title='01 Ephemeral' type='music' year='2014'/>
-  </searchResult3>
-</subsonic-response>

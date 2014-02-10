@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
+  <searchResult3>
+    <artist albumCount='2' coverArt='ar-38' id='38' name='Story Of The Year'/>
+    <artist albumCount='1' coverArt='ar-39' id='39' name='One Year'/>
+  </searchResult3>
+</subsonic-response>

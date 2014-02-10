@@ -16,11 +16,6 @@ class SubsonicAPI
     @configs = configs
   end
 
-  #returns an array of songs for the given song name
-  def song(name)
-    search(name, :song)
-  end
-
   #return an array of albums matching the given name
   def albums(name)
     search(name, :album)
@@ -140,7 +135,7 @@ class SubsonicAPI
   end
 
   #returns the streaming URL for the song, including basic auth
-  def song_url(songid)
+  def stream_url(songid)
     uri = build_url('stream.view', {:id => songid})
     add_basic_auth(uri)
   end
@@ -206,18 +201,14 @@ class SubsonicAPI
 
     doc = query('search3.view', params)
 
-    #TODO find proper variable names. seriously.
-    ['artist','album','song'].collect_concat do |entityName|
-      doc.elements.collect("subsonic-response/searchResult3/#{entityName}") do |entity|
-        if entityName == 'song'
-          song = entity.attributes
-          song['type'] = :song
-          song
-        else
-          out = entity.attributes
-          out['type'] = entityName
-          out
+    %i{artist album song}.collect_concat do |entity_type|
+      doc.elements.collect("subsonic-response/searchResult3/#{entity_type}") do |entity|
+        entity = Hash[entity.attributes.collect{ |key, val| [key.to_sym, val]}]
+        entity[:type] = entity_type
+        if entity_type == :song
+          entity[:stream_url] = stream_url(entity[:id])
         end
+        entity
       end
     end
   end
@@ -227,7 +218,7 @@ class SubsonicAPI
     LOGGER.debug "query: #{uri} (basic auth sent per HTTP header)"
 
     req = Net::HTTP::Get.new(uri.request_uri)
-    req.basic_auth(@configs.uname, @configs.pword)
+    req.basic_auth(@configs[:username], @configs[:password])
     res = Net::HTTP.start(uri.hostname, uri.port) do |http|
       http.request(req)
     end
@@ -244,10 +235,8 @@ class SubsonicAPI
     #handle http error
     case res.code
     when '200'
-      doc
+      return doc
     else
-      #TODO make the next line conditional for debug/verbose mode
-      $stderr.puts "query: #{uri} (basic auth sent per HTTP header)"
       msg = case res.code
       when '401'
         "HTTP 401. Might be an incorrect username/password"
@@ -259,20 +248,17 @@ class SubsonicAPI
   end
 
   def build_url(method, params)
-    #params[:u] = @configs.uname
-    #params[:p] = @configs.pword
-    params[:v] = @configs.proto_version
-    params[:c] = @configs.appname
-    query = params.map {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
+    params[:v] = @configs[:proto_version]
+    params[:c] = @configs[:appname]
+    query = params.collect {|k,v| "#{k}=#{URI.escape(v.to_s)}"}.join('&')
 
-    uri = URI("#{@configs.server}/rest/#{method}?#{query}")
-    uri
+    URI("#{@configs[:server]}/rest/#{method}?#{query}")
   end
 
   #adds the basic auth parameters from the config to the URI
   def add_basic_auth(uri)
-    uri.user = @configs.uname
-    uri.password = @configs.pword
+    uri.user = @configs[:username]
+    uri.password = @configs[:password]
     return uri
   end
 
