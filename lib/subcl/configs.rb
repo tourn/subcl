@@ -44,4 +44,20 @@ class Configs
       end
     end
   end
+
+  def [](key)
+    raise "Undefined setting #{key}" unless @configs.has_key? key
+    @configs[key]
+  end
+
+  def []=(key, val)
+    settings = REQUIRED_SETTINGS + OPTIONAL_SETTINGS
+    settings.each do |name|
+      if key == name
+        @configs[key] = val
+        return
+      end
+    end
+    raise "Undefined setting #{key}"
+  end
 end

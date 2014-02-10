@@ -21,3 +21,28 @@ describe Configs do
     Configs.new('spec/configs/invalid').stub(:ping)
   end
 end
+
+describe 'Configs array access' do
+  before :each do
+    @configs = Configs.new('spec/configs/complete')
+  end
+
+  it 'should return the proper value' do
+    @configs[:username].should == "foo"
+  end
+
+  it 'should raise an exception on unknown key read' do
+    expect { @configs[:blah] }.to raise_error
+  end
+
+  it 'should be writable' do
+    name = "test"
+    @configs[:username] = name
+    @configs[:username].should == name
+  end
+
+  it 'should raise an exception on unknown key write' do
+    expect { @configs[:blah] = nil }.to raise_error
+  end
+
+end
