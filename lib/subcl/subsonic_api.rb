@@ -12,16 +12,39 @@ include REXML
 #TODO move picker invocation up to Subcl; this class should only handle API calls
 class SubsonicAPI
 
+  REQUIRED_SETTINGS = %i{server username password}
+
   def initialize(configs)
-    @configs = configs
+    @configs = {
+      :appname => 'subcl',
+      :app_version => '0.0.4',
+      :proto_version => '1.9.0', #subsonic API protocol version
+      :max_search_results => 20,
+      :random_song_count => 10
+    }.merge! configs.to_hash
+
+    REQUIRED_SETTINGS.each do |setting|
+      unless @configs.key? setting
+        raise "Missing setting '#{setting}'"
+      end
+    end
   end
 
-  #return an array of albums matching the given name
-  def albums(name)
-    search(name, :album)
+  #takes a list of albums or artists and returns a list of their songs
+  def get_songs(entities)
+    entities.collect do |entity|
+      case entity[:type]
+      when :song
+        entity
+      when :album
+        #TODO
+      when :artist
+        #TODO
+      else
+        raise "Cannot get songs for #{entity[:type]}"
+      end
+    end
   end
-
-  #TODO make something to get songs from a list of albums/artists
 
   #returns an array of songs for the given album name
   def album_songs(name)
@@ -134,23 +157,6 @@ class SubsonicAPI
     out
   end
 
-  #returns the streaming URL for the song, including basic auth
-  def stream_url(songid)
-    uri = build_url('stream.view', {:id => songid})
-    add_basic_auth(uri)
-  end
-
-  #returns the albumart URL for the song
-  def albumart_url(streamUrl, size = nil)
-    raise ArgumentError if streamUrl.empty?
-    id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
-    params = {:id => id};
-    params[:size] = size unless size.nil?
-    add_basic_auth(
-      build_url('getCoverArt.view', params)
-    )
-  end
-
   def albumlist
     doc = query('getAlbumList2.view', {:type => 'random'})
     #there must be a cleaner way to do this
@@ -161,19 +167,24 @@ class SubsonicAPI
     return out
   end
 
-  def random_songs(count)
-    if count.empty?
-      count = @configs.randomSongCount
+  def random_songs(count = nil)
+    if count.nil?
+      count = @configs[:random_song_count]
     else
       #throw an exception if it's not an int
       count = Integer(count)
     end
-    out = []
     doc = query('getRandomSongs.view', {:size => count})
-    doc.elements.each('subsonic-response/random_songs/song') do |song|
-      out << Song.new(self, song.attributes)
+    doc.elements.collect('subsonic-response/randomSongs/song') do |song|
+      decorate_song(song.attributes)
     end
-    out
+  end
+
+  def decorate_song(attributes)
+    attributes = Hash[attributes.collect {|key, val| [key.to_sym, val]}]
+    attributes[:type] = :song
+    attributes[:stream_url] = stream_url(attributes[:id])
+    attributes
   end
 
   def search(query, type)
@@ -260,6 +271,23 @@ class SubsonicAPI
     uri.user = @configs[:username]
     uri.password = @configs[:password]
     return uri
+  end
+
+  #returns the streaming URL for the song, including basic auth
+  def stream_url(songid)
+    uri = build_url('stream.view', {:id => songid})
+    add_basic_auth(uri)
+  end
+
+  #returns the albumart URL for the song
+  def albumart_url(streamUrl, size = nil)
+    raise ArgumentError if streamUrl.empty?
+    id = CGI.parse(URI.parse(streamUrl).query)['id'][0]
+    params = {:id => id};
+    params[:size] = size unless size.nil?
+    add_basic_auth(
+      build_url('getCoverArt.view', params)
+    )
   end
 
 end

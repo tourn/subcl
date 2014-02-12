@@ -8,12 +8,7 @@ class Configs
   def initialize(file = '~/.subcl')
     @configs = {
       #TOOD appversion is kinda weird here. put it somewhere where the gemspec can reach it too
-      :app_version => '0.0.3',
-      :proto_version => '1.9.0', #subsonic API protocol version
-      :appname => 'subcl',
-      :max_search_results => 20,
       :notifyMethod => "auto",
-      :randomSongCount => 10
     }
 
     @filename = File.expand_path(file)
@@ -59,5 +54,9 @@ class Configs
       end
     end
     raise "Undefined setting #{key}"
+  end
+
+  def to_hash
+    @configs
   end
 end

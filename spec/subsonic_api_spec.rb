@@ -7,14 +7,16 @@ describe SubsonicAPI do
   end
 
   before :each do
-    @api = SubsonicAPI.new({
+    @default_configs = {
       :max_search_results => 100,
       :server => 'http://example.com',
       :username => 'username',
       :password => 'password',
       :proto_version => '1.9.0',
       :appname => 'subcl-spec'
-    })
+    }
+
+    @api = SubsonicAPI.new(@default_configs)
   end
 
   describe '#search' do
@@ -55,6 +57,30 @@ describe SubsonicAPI do
       song = re[2]
       song[:type].should == :song
       song[:id].should == '1577'
+    end
+  end
+
+  describe '#random_songs' do
+    it 'should return some random songs with default count' do
+      default_count = 10 #set in subsonicAPI
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getRandomSongs.view'
+        p args
+        args[:size].should == default_count
+      end.and_return(doc('random.xml'))
+      re = @api.random_songs
+      re.length.should == default_count
+    end
+
+    it 'should return some random songs with explicit count' do
+      count = 15
+      api = SubsonicAPI.new(@default_configs.merge({:random_song_count => count}))
+      api.should_receive(:query) do |path, args|
+        path.should == 'getRandomSongs.view'
+        args[:size].should == count
+      end.and_return(doc('random-15.xml'))
+      re = api.random_songs(count)
+      re.length.should == count
     end
   end
 end
