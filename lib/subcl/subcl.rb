@@ -157,5 +157,19 @@ class Subcl
     @subsonic.albumlist.each &@display[:album]
   end
 
+  def invoke_picker(array, &displayProc)
+    if array.empty? or array.length == 1
+      return array
+    end
+
+    if !@interactive
+      return [array.first]
+    end
+
+    return Picker.new(array).pick(&displayProc)
+
+  end
+
+
 
 end

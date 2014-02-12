@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
+  <artist albumCount='3' coverArt='ar-138' id='138' name='Intervals'>
+    <album artist='Intervals' artistId='138' coverArt='al-473' created='2012-10-23T18:57:26' duration='1197' id='473' name='The Space Between' songCount='5' year='2011'/>
+    <album artist='Intervals' artistId='138' coverArt='al-474' created='2012-10-30T23:09:27' duration='1362' id='474' name='In Time' songCount='5' year='2012'/>
+  </artist>
+</subsonic-response>

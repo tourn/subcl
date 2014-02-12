@@ -68,8 +68,11 @@ describe SubsonicAPI do
         p args
         args[:size].should == default_count
       end.and_return(doc('random.xml'))
+
       re = @api.random_songs
       re.length.should == default_count
+
+      #TODO test one song to be properly formatted
     end
 
     it 'should return some random songs with explicit count' do
@@ -79,8 +82,60 @@ describe SubsonicAPI do
         path.should == 'getRandomSongs.view'
         args[:size].should == count
       end.and_return(doc('random-15.xml'))
+
       re = api.random_songs(count)
       re.length.should == count
+
+      #TODO test one song to be properly formatted
     end
+  end
+
+  describe '#get_songs' do
+    it 'should return a list of songs the way they are' do
+      songs = [
+        { :type => :song, :id => 1 },
+        { :type => :song, :id => 2 }
+      ]
+      re = @api.get_songs(songs)
+      re.should == songs
+    end
+
+    it 'should retrieve the songs for some albums' do
+      albums = [
+        { :type => :album, :id => 1 },
+        { :type => :album, :id => 2 }
+      ]
+      @api.should_receive(:album_songs).twice.and_call_original
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getAlbum.view'
+        args[:id].should == 1
+      end.and_return(doc('getAlbum-1.xml'))
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getAlbum.view'
+        args[:id].should == 2
+      end.and_return(doc('getAlbum-2.xml'))
+
+      re = @api.get_songs(albums)
+
+      re.length.should == 10
+    end
+
+    it 'should retrieve the songs for some artist' do
+      artist = [ { :type => :artist, :id => 1 } ]
+      @api.should_receive(:artist_songs).once.with(1).and_call_original
+      @api.should_receive(:album_songs).with("473").and_return([{:type => :song, :id => 1}])
+      @api.should_receive(:album_songs).with("474").and_return([{:type => :song, :id => 2}])
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getArtist.view'
+        args[:id].should == 1
+      end.and_return(doc('getArtist.xml'))
+
+      re = @api.get_songs(artist)
+      re.should == [
+        {:type => :song, :id => 1},
+        {:type => :song, :id => 2}
+      ]
+    end
+
   end
 end

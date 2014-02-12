@@ -32,84 +32,34 @@ class SubsonicAPI
 
   #takes a list of albums or artists and returns a list of their songs
   def get_songs(entities)
-    entities.collect do |entity|
+    entities.collect_concat do |entity|
       case entity[:type]
       when :song
         entity
       when :album
-        #TODO
+        album_songs(entity[:id])
       when :artist
-        #TODO
+        artist_songs(entity[:id])
       else
         raise "Cannot get songs for #{entity[:type]}"
       end
     end
   end
 
-  #returns an array of songs for the given album name
-  def album_songs(name)
-    searchResults = search(name, :album)
-
-    searchResults.collect_concat do |album|
-      doc = query('getAlbum.view', {:id => album['id']})
-      doc.elements.collect('subsonic-response/album/song') do |songEntry|
-        song = songEntry.attributes
-        song[:stream_url] = nil #TODO
-        song
-      end
+  #returns an array of songs for the given album id
+  def album_songs(id)
+    doc = query('getAlbum.view', {:id => id})
+    doc.elements.collect('subsonic-response/album/song') do |song|
+      decorate_song(song)
     end
   end
 
-  #returns an array of song streaming urls for the given artist name
-  #on multiple matches, the user is asked interactively for the wanted match
-  def artist_songs(name)
-    searchResults = search(name, :artist)
-
-    if searchResults.length.zero?
-      return []
+  #returns an array of songs for the given artist id
+  def artist_songs(id)
+    doc = query('getArtist.view', {:id => id})
+    doc.elements.inject('subsonic-response/artist/album', []) do |memo, album|
+      memo += album_songs(album.attributes['id'])
     end
-
-    picks = invoke_picker(searchResults, &@display[:artist])
-    songs = []
-    picks.each do |artist|
-      doc = query('getArtist.view', {:id => artist['id']})
-      doc.elements.each('subsonic-response/artist/album') do |album|
-        doc = query('getAlbum.view', {:id => album.attributes['id']})
-        doc.elements.each('subsonic-response/album/song') do |element|
-          songs << Song.new(self, element.attributes)
-        end
-      end
-    end
-
-    songs
-  end
-
-  def invoke_picker(array, &displayProc)
-    if array.empty? or array.length == 1
-      return array
-    end
-
-    if !@interactive
-      return [array.first]
-    end
-
-    return Picker.new(array).pick(&displayProc)
-
-  end
-
-  #returns all artists matching the pattern
-  def artists(name)
-    search(name, :artist)
-  end
-
-  #returns all albums matching the pattern
-  def albums(name)
-    search(name, :album)
-  end
-
-  #returns all songs matching the pattern
-  def songs(name)
-    search(name, :song)
   end
 
   #returns all playlists
@@ -129,6 +79,9 @@ class SubsonicAPI
 
 
   #returns all playlists matching name
+  #subsonic features no mechanism to search by playlist name, so this method retrieves
+  #all playlists and and filters them locally. This might become problematic when the server
+  #has a huge amount of playlists
   def playlists(name = nil)
     all = all_playlists
     out = []
@@ -226,7 +179,7 @@ class SubsonicAPI
 
   def query(method, params = {})
     uri = build_url(method, params)
-    LOGGER.debug "query: #{uri} (basic auth sent per HTTP header)"
+    LOGGER.debug { "query: #{uri} (basic auth sent per HTTP header)" }
 
     req = Net::HTTP::Get.new(uri.request_uri)
     req.basic_auth(@configs[:username], @configs[:password])
