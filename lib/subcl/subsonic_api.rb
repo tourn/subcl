@@ -9,7 +9,6 @@ require 'thread' #Do I need this?
 require 'cgi'
 include REXML
 
-#TODO move picker invocation up to Subcl; this class should only handle API calls
 class SubsonicAPI
 
   REQUIRED_SETTINGS = %i{server username password}
@@ -40,8 +39,10 @@ class SubsonicAPI
         album_songs(entity[:id])
       when :artist
         artist_songs(entity[:id])
+      when :playlist
+        playlist_songs(entity[:id])
       else
-        raise "Cannot get songs for #{entity[:type]}"
+        raise "Cannot get songs for '#{entity[:type]}'"
       end
     end
   end
@@ -62,19 +63,25 @@ class SubsonicAPI
     end
   end
 
+  #returns all songs from playlist(s) matching the name
+  def playlist_songs(id)
+    doc = query('getPlaylist.view', {:id => id})
+    doc.elements.collect('subsonic-response/playlist/entry') do |entry|
+      decorate_song(entry.attributes)
+    end
+  end
+
   #returns all playlists
   def all_playlists
-    out = []
     doc = query('getPlaylists.view')
-    doc.elements.each('subsonic-response/playlists/playlist') do |playlist|
-      item = {
+    doc.elements.collect('subsonic-response/playlists/playlist') do |playlist|
+      {
         :id => playlist.attributes['id'],
         :name => playlist.attributes['name'],
-        :owner => playlist.attributes['owner']
+        :owner => playlist.attributes['owner'],
+        :type => :playlist
       }
-      out << item
     end
-    out
   end
 
 
@@ -82,32 +89,11 @@ class SubsonicAPI
   #subsonic features no mechanism to search by playlist name, so this method retrieves
   #all playlists and and filters them locally. This might become problematic when the server
   #has a huge amount of playlists
-  def playlists(name = nil)
-    all = all_playlists
-    out = []
-
-    if name
-      name.downcase!
-      all.each do |playlist|
-        if playlist[:name].downcase.include? name
-          out << playlist
-        end
-      end
+  def get_playlists(name)
+    name.downcase!
+    all_playlists().select do |playlist|
+      playlist[:name].downcase.include? name
     end
-
-    invoke_picker(out, &@display[:playlist])
-  end
-
-  #returns all songs from playlist(s) matching the name
-  def playlist_songs(playListName)
-    out = []
-    playlists(playListName).each do |playlist|
-      doc = query('getPlaylist.view', {:id => playlist[:id]})
-      doc.elements.each('subsonic-response/playlist/entry') do |entry|
-        out << Song.new(self, entry.attributes)
-      end
-    end
-    out
   end
 
   def albumlist
@@ -133,6 +119,8 @@ class SubsonicAPI
     end
   end
 
+  #takes the attributes of a song tag from the xml and applies the
+  #:type and :stream_url attribute
   def decorate_song(attributes)
     attributes = Hash[attributes.collect {|key, val| [key.to_sym, val]}]
     attributes[:type] = :song
@@ -156,11 +144,15 @@ class SubsonicAPI
       params[:albumCount] = max
     when :song
       params[:songCount] = max
+    when :playlist
+      return get_playlists(query)
     when :any
       #XXX or do we now use max/3 for each?
       params[:songCount] = max
       params[:albumCount] = max
       params[:artistCount] = max
+    else
+      raise "Cannot search for type '#{type}'"
     end
 
     doc = query('search3.view', params)

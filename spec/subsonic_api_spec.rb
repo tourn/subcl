@@ -58,6 +58,14 @@ describe SubsonicAPI do
       song[:type].should == :song
       song[:id].should == '1577'
     end
+
+    it 'should return some playlists' do
+      name = 'peripherial'
+      @api.should_receive(:query).with('getPlaylists.view').and_return(doc('getPlaylists.xml'))
+      re = @api.search(name, :playlist)
+      re.length.should == 1
+      re.first[:name].downcase.should == name
+    end
   end
 
   describe '#random_songs' do
@@ -137,5 +145,27 @@ describe SubsonicAPI do
       ]
     end
 
+    it 'should retrieve the songs for some playlist' do
+      playlist = [ { :type => :playlist, :id => 3 } ]
+      @api.should_receive(:playlist_songs).once.with(3).and_call_original
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getPlaylist.view'
+        args[:id].should == 3
+      end.and_return(doc('getPlaylist.xml'))
+
+      re = @api.get_songs(playlist)
+      re.length.should == 5
+    end
+  end
+
+  describe '#all_playlists' do
+    it 'should return a list of all playlists' do
+      @api.should_receive(:query).with('getPlaylists.view').and_return(doc('getPlaylists.xml'))
+      re = @api.all_playlists
+      re.length.should == 2
+      re.each do |playlist|
+        playlist[:type].should == :playlist
+      end
+    end
   end
 end

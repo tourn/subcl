@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
+  <playlists>
+    <playlist comment='' created='2013-10-07T09:53:21' duration='20434' id='3' name='Peripherial' owner='tourn' public='true' songCount='74'/>
+    <playlist comment='' created='2013-10-10T09:32:42' duration='34775' id='5' name='Algorithmic' owner='tourn' public='true' songCount='149'/>
+  </playlists>
+</subsonic-response>
