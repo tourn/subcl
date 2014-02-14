@@ -96,23 +96,23 @@ class SubsonicAPI
     end
   end
 
-  def albumlist
-    doc = query('getAlbumList2.view', {:type => 'random'})
-    #there must be a cleaner way to do this
-    out = []
-    doc.elements.each('subsonic-response/albumList2/album') do |album|
-      out << album.attributes
+  #returns a list of albums from the specified type
+  #http://www.subsonic.org/pages/api.jsp#getAlbumList2
+  def albumlist(type = :random)
+    #TODO might want to add validation for the type here
+    doc = query('getAlbumList2.view', {:type => type})
+    doc.elements.collect('subsonic-response/albumList2/album') do |album|
+      album = album.attributes
+      album = Hash[album.collect { |key,val| [key.to_sym, val] }]
+      album[:type] = :album
+      album
     end
-    return out
   end
 
-  def random_songs(count = nil)
-    if count.nil?
-      count = @configs[:random_song_count]
-    else
-      #throw an exception if it's not an int
-      count = Integer(count)
-    end
+  def random_songs(count = @configs[:random_song_count])
+    #throws an exception if its not parseable to an int
+    count = Integer(count)
+
     doc = query('getRandomSongs.view', {:size => count})
     doc.elements.collect('subsonic-response/randomSongs/song') do |song|
       decorate_song(song.attributes)

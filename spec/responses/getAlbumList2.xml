@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<subsonic-response status='ok' version='1.10.2' xmlns='http://subsonic.org/restapi'>
+  <albumList2>
+    <album artist='TesseracT' artistId='219' coverArt='al-723' created='2013-03-19T18:05:32' duration='3271' genre='Progressive Metal' id='723' name='One' songCount='11' year='2011'/>
+    <album artist='The Offspring' artistId='85' coverArt='al-297' created='2012-10-23T19:27:27' duration='1918' genre='Punk' id='297' name='Splinter' songCount='12' year='2003'/>
+    <album artist='Breaking Benjamin' artistId='184' coverArt='al-653' created='2012-10-23T18:42:30' duration='2770' genre='Post Grunge' id='653' name='Phobia' songCount='14' year='2006'/>
+    <album artist='Daughtry' artistId='44' coverArt='al-127' created='2012-10-23T18:45:13' duration='3055' genre='Alternative Rock' id='127' name='Daughtry' songCount='14' year='2006'/>
+    <album artist='BlacKisS' artistId='125' coverArt='al-450' created='2012-10-23T18:53:52' duration='294' id='450' name='Amalgam' songCount='1' year='2009'/>
+    <album artist='Seether' artistId='101' coverArt='al-377' created='2012-10-23T19:12:06' duration='4607' genre='Post Grunge' id='377' name='Disclaimer II' songCount='20' year='2004'/>
+    <album artist='Bj&#246;rk' artistId='235' coverArt='al-779' created='2012-10-23T18:41:38' duration='1445' genre='Electronica' id='779' name='Selmasongs' songCount='5' year='2000'/>
+    <album artist='Sunbeam' artistId='208' coverArt='al-711' created='2012-10-23T18:43:37' duration='215' genre='Electronica' id='711' name='Club Sounds Vol.10' songCount='1' year='1999'/>
+    <album artist='Muse' artistId='22' coverArt='al-219' created='2012-10-23T19:02:27' duration='3316' genre='Other' id='219' name='Rares' songCount='16'/>
+    <album artist='Motionless Battle' artistId='187' coverArt='al-662' created='2012-10-23T19:01:44' duration='2648' genre='Game Metal' id='662' name='The Universe Defiant' songCount='9' year='2010'/>
+  </albumList2>
+</subsonic-response>

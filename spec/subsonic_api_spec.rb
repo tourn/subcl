@@ -168,4 +168,34 @@ describe SubsonicAPI do
       end
     end
   end
+
+  describe '#albumlist' do
+    it 'should get random songs by default' do
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getAlbumList2.view'
+        args[:type].should == :random
+      end.and_return(doc('getAlbumlist2.xml'))
+      re = @api.albumlist
+      re.length.should == 10
+      re.first[:type].should == :album
+    end
+
+    it 'should get frequent albums' do
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getAlbumList2.view'
+        args[:type].should == :frequent
+      end.and_return(doc('getAlbumlist2.xml'))
+      re = @api.albumlist(:frequent)
+      re.length.should == 10
+      re.first[:type].should == :album
+    end
+  end
+
+  describe '#random_songs' do
+    it 'should get 10 random songs by default' do
+    end
+
+    it 'should get 20 random songs' do
+    end
+  end
 end
