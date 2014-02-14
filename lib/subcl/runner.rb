@@ -12,8 +12,6 @@ class Runner
   end
 
   def parse_options! args
-    #no idea how to get this variable from outside, so we'll just set it in the loop
-    usage = nil
     OptionParser.new do |opts|
       opts.banner = "Usage: subcl [options] command"
       opts.separator %{
@@ -38,7 +36,7 @@ class Runner
 
     Options }
 
-      usage = opts
+      @usage = opts
 
       opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
         @options[:verbose] = v
@@ -67,10 +65,15 @@ class Runner
   def run(args, out_stream = STDOUT, err_stream = STDERR)
     @options[:out_stream]  = out_stream
     @options[:err_stream]  = err_stream
+
+    LOGGER.debug { "args = #{args}" }
+
     parse_options!(args)
 
+    LOGGER.debug { "args = #{args}" }
+
     unless args.size >= 1
-      err_stream.puts usage
+      err_stream.puts @usage
       exit 3
     end
 
@@ -127,9 +130,10 @@ class Runner
       subcl.testNotify
     else
       if @options[:tty] then
-        err_stream.puts usage
+        err_stream.puts "Unknown command '#{args[0]}'"
+        err_stream.puts @usage
       else
-        subcl.notifier.notify "Unrecognized command"
+        subcl.notifier.notify "Unknown command '#{args[0]}'"
       end
       exit 3
     end
