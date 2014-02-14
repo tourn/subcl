@@ -1,6 +1,6 @@
 
 class Subcl
-  attr_reader :player, :subsonic, :notifier
+  attr_accessor :player, :api, :notifier
 
   def initialize(options = {})
     #default options
@@ -15,42 +15,42 @@ class Subcl
     #overwrite defaults with given options
     @options.merge! options
 
+    @out = @options[:out_stream]
+    @err = @options[:err_stream]
+
     begin
-    @configs = Configs.new
+      @configs = Configs.new
     rescue => e
-      @options[:err_stream].puts "Error initializing config"
-      @options[:err_stream].puts e.message
+      @err.puts "Error initializing config"
+      @err.puts e.message
       exit 4
     end
 
     @player = Mpc.new
-    @player.debug = @options[:debug]
 
-    @notifier = Notify.new @configs.notifyMethod
+    @notifier = Notify.new @configs[:notify_method]
 
     @display = {
       :song => proc { |song|
-        @options[:err_stream].puts "#{song['title']} by #{song['artist']} on #{song['album']} (#{song['year']})"
+        @out.puts "#{song[:title]} by #{song[:artist]} on #{song[:album]} (#{song[:year]})"
       },
       :album => proc { |album|
-        @options[:err_stream].puts "#{album['name']} by #{album['artist']} in #{album['year']}"
+        @out.puts "#{album[:name]} by #{album[:artist]} in #{album[:year]}"
       },
       :artist => proc { |artist|
-        @options[:err_stream].puts "#{artist['name']}"
+        @out.puts "#{artist[:name]}"
       },
       :playlist => proc { |playlist|
-        @options[:err_stream].puts "#{playlist[:name]} by #{playlist[:owner]}"
+        @out.puts "#{playlist[:name]} by #{playlist[:owner]}"
       },
     }
 
-    @subsonic = Subsonic.new(@configs, @display)
-    @subsonic.interactive = @options[:interactive]
-
+    @api = SubsonicAPI.new(@configs)
   end
 
   def albumart_url(size = nil)
     current = @player.current
-    @options[:out_stream].puts @subsonic.albumart_url(current, size) unless current.empty?
+    @out.puts @api.albumart_url(current, size) unless current.empty?
   end
 
   def queue(query, type, inArgs = {})
@@ -70,16 +70,16 @@ class Subcl
 
     songs = case type
             when :song
-              @subsonic.song(query)
+              @api.song(query)
             when :album
-              @subsonic.album_songs(query)
+              @api.album_songs(query)
             when :artist
-              @subsonic.artist_songs(query)
+              @api.artist_songs(query)
             when :playlist
-              @subsonic.playlist_songs(query)
+              @api.playlist_songs(query)
             when :randomSong
               begin
-                @subsonic.random_songs(query)
+                @api.random_songs(query)
               rescue ArgumentError
                 raise ArgumentError, "random-songs takes an integer as argument"
               end
@@ -101,7 +101,7 @@ class Subcl
   end
 
   def search_song(name)
-    songs = @subsonic.songs(name)
+    songs = @api.songs(name)
     if(songs.size == 0)
       no_matches("song")
     else
@@ -112,7 +112,7 @@ class Subcl
   end
 
   def search_album(name)
-    albums = @subsonic.albums(name)
+    albums = @api.albums(name)
     if(albums.size == 0)
       no_matches("album")
     else
@@ -123,7 +123,7 @@ class Subcl
   end
 
   def search_artist(name)
-    artists = @subsonic.artists(name)
+    artists = @api.artists(name)
     if(artists.size == 0)
       no_matches("artist")
     else
@@ -142,7 +142,7 @@ class Subcl
     end
 
     if @options[:tty]
-      @options[:err_stream].puts message
+      @err.puts message
     else
       @notifier.notify(message)
     end
@@ -154,20 +154,17 @@ class Subcl
   end
 
   def albumlist
-    @subsonic.albumlist.each &@display[:album]
+    @api.albumlist.each do |album|
+      @display[:album].call(album)
+    end
   end
 
-  def invoke_picker(array, &displayProc)
-    if array.empty? or array.length == 1
-      return array
-    end
-
-    if !@interactive
-      return [array.first]
-    end
-
-    return Picker.new(array).pick(&displayProc)
-
+  #show an interactive picker that lists every element of the array using &display_proc
+  #The user can then choose one, many or no of the elements which will be returned as array
+  def invoke_picker(array, &display_proc)
+    return array if array.length <= 1
+    return [array.first] unless @options[:interactive]
+    return Picker.new(array).pick(&display_proc)
   end
 
 
