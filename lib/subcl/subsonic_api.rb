@@ -51,7 +51,7 @@ class SubsonicAPI
   def album_songs(id)
     doc = query('getAlbum.view', {:id => id})
     doc.elements.collect('subsonic-response/album/song') do |song|
-      decorate_song(song)
+      decorate_song(song.attributes)
     end
   end
 
@@ -220,6 +220,7 @@ class SubsonicAPI
 
   #returns the streaming URL for the song, including basic auth
   def stream_url(songid)
+    raise ArgumentError, "no songid!" unless songid
     uri = build_url('stream.view', {:id => songid})
     add_basic_auth(uri)
   end

@@ -19,18 +19,17 @@ class Mpc
   #insert: whether to add the song after the currently playing one
   #instead of the end of the queue
   def add(song, insert = false)
-    unless song.respond_to? 'url'
-      p song
-      raise ArgumentError, "parameter does not have an #url method"
+    unless song[:stream_url]
+      raise ArgumentError, "argument has no :stream_url!"
     end
     if @debug
       action = insert ? "insert" : "add"
-      puts "would #{action} #{song['title']}: #{song.url}"
+      puts "would #{action} #{song['title']}: #{song[:stream_url]}"
     else
       if insert then
-        mpccall("insert '#{song.url}'")
+        mpccall("insert '#{song[:stream_url]}'")
       else
-        mpccall("add '#{song.url}'")
+        mpccall("add '#{song[:stream_url]}'")
       end
     end
   end

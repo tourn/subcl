@@ -69,25 +69,19 @@ class Subcl
     end
 
     songs = case type
-            when :song
-              @api.song(query)
-            when :album
-              @api.album_songs(query)
-            when :artist
-              @api.artist_songs(query)
-            when :playlist
-              @api.playlist_songs(query)
             when :randomSong
               begin
                 @api.random_songs(query)
               rescue ArgumentError
                 raise ArgumentError, "random-songs takes an integer as argument"
               end
+            else #song, album, artist, playlist
+              entities = @api.search(query, type)
+              entities = invoke_picker(entities, &@display[type])
+              @api.get_songs(entities)
             end
 
-    if songs.empty?
-      no_matches
-    end
+    no_matches if songs.empty?
 
     @player.clear if args[:clear]
 
@@ -100,36 +94,11 @@ class Subcl
     @player.play if args[:play]
   end
 
-  def search_song(name)
-    songs = @api.songs(name)
-    if(songs.size == 0)
-      no_matches("song")
-    else
-      songs.each do |song|
-        @display[:song].call(song)
-      end
-    end
-  end
-
-  def search_album(name)
-    albums = @api.albums(name)
-    if(albums.size == 0)
-      no_matches("album")
-    else
-      albums.each do |album|
-        @display[:album].call(album)
-      end
-    end
-  end
-
-  def search_artist(name)
-    artists = @api.artists(name)
-    if(artists.size == 0)
-      no_matches("artist")
-    else
-      artists.each do |artist|
-        @display[:artist].call(artist)
-      end
+  def list(name, type)
+    entities = @api.search(name, type)
+    no_matches(type) if entities.empty?
+    entities.each do |entity|
+      @display[type].call(entity)
     end
   end
 
