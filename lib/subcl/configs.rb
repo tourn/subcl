@@ -7,7 +7,6 @@ class Configs
 
   def initialize(file = '~/.subcl')
     @configs = {
-      #TOOD appversion is kinda weird here. put it somewhere where the gemspec can reach it too
       :notifyMethod => "auto",
     }
 

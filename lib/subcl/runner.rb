@@ -116,11 +116,11 @@ class Runner
     when /^queue-last-playlist$|^lp$/
       subcl.queue(arg, :playlist)
     when /^search-song$|^ss$/
-      subcl.searchSong(arg)
+      subcl.print(arg, :song)
     when /^search-artist$|^sr$/
-      subcl.searchArtist(arg)
+      subcl.print(arg, :artist)
     when /^search-album$|^sl$/
-      subcl.searchAlbum(arg)
+      subcl.print(arg, :album)
     when "albumart-url"
       arg = nil if arg.empty?
       out_stream.puts subcl.albumartUrl(arg)

@@ -32,10 +32,10 @@ class Subcl
 
     @display = {
       :song => proc { |song|
-        @out.puts "#{song[:title]} by #{song[:artist]} on #{song[:album]} (#{song[:year]})"
+        @out.puts sprintf "%-20.20s %-20.20s %-20.20s %-4.4s", song[:title], song[:artist], song[:album], song[:year]
       },
       :album => proc { |album|
-        @out.puts "#{album[:name]} by #{album[:artist]} in #{album[:year]}"
+        @out.puts sprintf "%-30.30s %-30.30s %-4.4s", album[:name], album[:artist], album[:year]
       },
       :artist => proc { |artist|
         @out.puts "#{artist[:name]}"
@@ -94,7 +94,7 @@ class Subcl
     @player.play if args[:play]
   end
 
-  def list(name, type)
+  def print(name, type)
     entities = @api.search(name, type)
     no_matches(type) if entities.empty?
     entities.each do |entity|
@@ -135,7 +135,5 @@ class Subcl
     return [array.first] unless @options[:interactive]
     return Picker.new(array).pick(&display_proc)
   end
-
-
 
 end
