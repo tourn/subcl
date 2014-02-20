@@ -3,17 +3,13 @@ class Subcl
   attr_accessor :player, :api, :notifier
 
   def initialize(options = {})
-    #default options
     @options = {
       :interactive => true,
       :tty => true,
       :insert => false,
       :out_stream => STDOUT,
       :err_stream => STDERR
-    }
-
-    #overwrite defaults with given options
-    @options.merge! options
+    }.merge! options
 
     @out = @options[:out_stream]
     @err = @options[:err_stream]
@@ -26,7 +22,9 @@ class Subcl
       exit 4
     end
 
-    @player = Mpc.new
+    @player = @options[:mock_player] || Mpc.new
+
+    @api = @options[:mock_api] || SubsonicAPI.new(@configs)
 
     @notifier = Notify.new @configs[:notify_method]
 
@@ -45,7 +43,6 @@ class Subcl
       },
     }
 
-    @api = SubsonicAPI.new(@configs)
   end
 
   def albumart_url(size = nil)

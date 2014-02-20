@@ -1,8 +1,14 @@
 require 'optparse'
 
 class Runner
-  def initialize
-    @options = { :tty => true }
+  def initialize(options = {})
+    @options = {
+      :tty => true,
+      :out_stream => STDOUT,
+      :err_stream => STDERR,
+      :mock_player => nil,
+      :mock_api => nil
+    }.merge! options
 
     #TODO refactor this away
     if File.exist?('debug')
@@ -62,10 +68,7 @@ class Runner
     end.parse! args
   end
 
-  def run(args, out_stream = STDOUT, err_stream = STDERR)
-    @options[:out_stream]  = out_stream
-    @options[:err_stream]  = err_stream
-
+  def run(args)
     LOGGER.debug { "args = #{args}" }
 
     parse_options!(args)
@@ -130,8 +133,8 @@ class Runner
       subcl.testNotify
     else
       if @options[:tty] then
-        err_stream.puts "Unknown command '#{args[0]}'"
-        err_stream.puts @usage
+        @options[:err_stream].puts "Unknown command '#{args[0]}'"
+        @options[:err_stream].puts @usage
       else
         subcl.notifier.notify "Unknown command '#{args[0]}'"
       end
