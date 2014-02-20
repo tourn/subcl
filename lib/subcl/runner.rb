@@ -22,9 +22,6 @@ class Runner
       opts.banner = "Usage: subcl [options] command"
       opts.separator %{
     Commands
-      list to terminal
-          search[-song|-album|-artist] <pattern>
-          ss|sl|sr <pattern>
       clear queue and immediately start playing
           play[-song|-album|-artist|-playlist] <pattern>
           ps|pl|pr|pp <pattern>
@@ -118,12 +115,6 @@ class Runner
       subcl.queue(arg, :album)
     when /^queue-last-playlist$|^lp$/
       subcl.queue(arg, :playlist)
-    when /^search-song$|^ss$/
-      subcl.print(arg, :song)
-    when /^search-artist$|^sr$/
-      subcl.print(arg, :artist)
-    when /^search-album$|^sl$/
-      subcl.print(arg, :album)
     when "albumart-url"
       arg = nil if arg.empty?
       @options[:out_stream].puts subcl.albumart_url(arg)

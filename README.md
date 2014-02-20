@@ -36,31 +36,28 @@ Optionally it may contain:
 
 Currently supported commands
 ----------------------------
-	search: print entries to console
-	sr | search-aRtist SEARCH_QUERY
-	sl | search-aLbum SEARCH_QUERY
-	ss | search-song SEARCH_QUERY
+Some commands are available in a short and a long format
 
 	play: clear play queue and immediately start playing this
-	pr | play-aRtist SEARCH_QUERY
-	pl | play-aLbum SEARCH_QUERY
+	pr | play-artist SEARCH_QUERY
+	pl | play-album SEARCH_QUERY
 	ps | play-song SEARCH_QUERY
 	pp | play-playlist SEARCH_QUERY
-	r  | play-random COUNT (default random_song_count)
+	r  | play-random [COUNT]
 
 	queue-next: add this after the current song
-	nr | queue-next-aRtist SEARCH_QUERY
-	nl | queue-next-aLbum SEARCH_QUERY
+	nr | queue-next-artist SEARCH_QUERY
+	nl | queue-next-album SEARCH_QUERY
 	ns | queue-next-song SEARCH_QUERY
 	np | queue-next-playlist SEARCH_QUERY
 
 	queue-last: add this to the end of the play queue
-	lr | queue-next-aRtist SEARCH_QUERY
-	ll | queue-next-aLbum SEARCH_QUERY
+	lr | queue-next-artist SEARCH_QUERY
+	ll | queue-next-album SEARCH_QUERY
 	ls | queue-next-song SEARCH_QUERY
 	lp | queue-next-playlist SEARCH_QUERY
 
-	albumart-url [size] : Prints the url for the albumart of the currently
+	albumart-url [SIZE] : Prints the url for the albumart of the currently
 	playing song to stdout. Be ware that the url will contain your basic auth
 	credentials in clear text.
 
