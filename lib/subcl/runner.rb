@@ -76,7 +76,7 @@ class Runner
     LOGGER.debug { "args = #{args}" }
 
     unless args.size >= 1
-      err_stream.puts @usage
+      @options[:err_stream].puts @usage
       exit 3
     end
 

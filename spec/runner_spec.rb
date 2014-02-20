@@ -30,12 +30,22 @@ describe Runner do
   end
 
   describe 'play|queue' do
+    def verify_song_id(id)
+      return lambda do |song|
+        song[:stream_url].to_s.should =~ /id=#{id}/
+      end
+    end
+
+    def player_should_get_songs(*song_ids)
+      song_ids.each do |id|
+        @player.should_receive(:add, &verify_song_id(id))
+      end
+    end
+
     context 'when finding a unique song' do
       before :each do
-        @api.should_receive(:query) do |method, args|
-          method.should == 'search3.view'
-          args[:query].should == 'ephemeral'
-        end.and_return(doc('songs_search.xml'))
+        @api.should_receive(:query).with('search3.view', anything())
+          .and_return(doc('songs_search.xml'))
       end
 
       it 'should play a song' do
@@ -64,18 +74,6 @@ describe Runner do
         end.and_return(doc('songs_search_multi.xml'))
       end
 
-      def verify_song_id(id)
-        return lambda do |song|
-          song[:stream_url].to_s.should =~ /id=#{id}/
-        end
-      end
-
-      def player_should_get_songs(*song_ids)
-        song_ids.each do |id|
-          @player.should_receive(:add, &verify_song_id(id))
-        end
-      end
-
       context 'using the --use-first flag' do
         it 'should only pick the first with the --use-first flag' do
           player_should_get_songs(5356)
@@ -83,7 +81,7 @@ describe Runner do
         end
       end
 
-      context 'running interactively' do
+      context 'running interactively (picker)' do
         it 'should let me choose the first song' do
           STDIN.should_receive(:gets).and_return("1");
           player_should_get_songs(5356)
@@ -116,13 +114,87 @@ describe Runner do
       end
     end
 
-    context 'playing an album' do
+    context 'when finding a unique album' do
+      before :each do
+        @api.should_receive(:query) do |method, args|
+          method.should == 'search3.view'
+          args[:query].should == 'in time'
+        end.and_return(doc('search_album.xml'))
+        @api.should_receive(:query) do |method, args|
+          method.should == 'getAlbum.view'
+        end.and_return(doc('getAlbum-2.xml'))
+        player_should_get_songs(5584, 5583, 5585, 5582, 5581)
+      end
+
+      it 'should play it' do
+        @player.should_receive(:clear).once
+        @player.should_receive(:play).once
+        @runner.run %w{play-album in time}
+      end
+
+      it 'should queue it last' do
+        @runner.run %w{queue-last-album in time}
+      end
+
+      it 'should queue it next' do
+        @runner.run %w{queue-next-album in time}
+      end
     end
 
-    context 'playing an artist' do
+    context 'when finding a unique artist' do
+      before :each do
+        @api.should_receive(:query) do |method, args|
+          method.should == 'search3.view'
+        end.and_return(doc('search_artist.xml'))
+        @api.should_receive(:query) do |method, args|
+          method.should == 'getArtist.view'
+        end.and_return(doc('getArtist.xml'))
+        @api.should_receive(:query) do |method, args|
+          method.should == 'getAlbum.view'
+        end.and_return(doc('getAlbum-1.xml'))
+        @api.should_receive(:query) do |method, args|
+          method.should == 'getAlbum.view'
+        end.and_return(doc('getAlbum-2.xml'))
+        player_should_get_songs(5580, 5578, 5577, 5579, 5576, 5584, 5583, 5585, 5582, 5581)
+      end
+
+      it 'should play it' do
+        @player.should_receive(:clear).once
+        @player.should_receive(:play).once
+        @runner.run %w{play-artist intervals}
+      end
+
+      it 'should queue it last' do
+        @runner.run %w{queue-last-artist intervals}
+      end
+
+      it 'should queue it next' do
+        @runner.run %w{queue-next-artist intervals}
+      end
     end
 
-    context 'playing a playlist' do
+    context 'when finding a unique playlist' do
+      before :each do
+        @api.should_receive(:query).with('getPlaylists.view')
+          .and_return(doc('getPlaylists.xml'))
+        @api.should_receive(:query).with('getPlaylist.view', anything())
+          .and_return(doc('getPlaylist.xml'))
+        player_should_get_songs(8477, 8482, 8483, 8480, 8474)
+      end
+
+      it 'should play it' do
+        @player.should_receive(:clear).once
+        @player.should_receive(:play).once
+        @runner.run %w{play-playlist peripherial}
+      end
+
+      it 'should queue it last' do
+        @runner.run %w{queue-last-playlist peripherial}
+      end
+
+      it 'should queue it next' do
+        @runner.run %w{queue-next-playlist peripherial}
+      end
     end
   end
 
@@ -134,20 +206,6 @@ describe Runner do
         url.to_s.should match(%r#foo:bar@example\.com/rest/getCoverArt\.view\?id=5584#)
       end
       @runner.run %w{albumart-url}
-    end
-  end
-
-  describe 'search' do
-    it 'should search for songs' do
-    end
-
-    it 'should search for albums' do
-    end
-
-    it 'should search for artists' do
-    end
-
-    it 'should search for playlists' do
     end
   end
 end
