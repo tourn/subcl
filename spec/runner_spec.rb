@@ -64,11 +64,21 @@ describe Runner do
         end.and_return(doc('songs_search_multi.xml'))
       end
 
+      def verify_song_id(id)
+        return lambda do |song|
+          song[:stream_url].to_s.should =~ /id=#{id}/
+        end
+      end
+
+      def player_should_get_songs(*song_ids)
+        song_ids.each do |id|
+          @player.should_receive(:add, &verify_song_id(id))
+        end
+      end
+
       context 'using the --use-first flag' do
         it 'should only pick the first with the --use-first flag' do
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5356/
-          end.once
+          player_should_get_songs(5356)
           @runner.run %w{queue-next-song --use-first pain}
         end
       end
@@ -76,62 +86,31 @@ describe Runner do
       context 'running interactively' do
         it 'should let me choose the first song' do
           STDIN.should_receive(:gets).and_return("1");
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5356/
-          end.once
+          player_should_get_songs(5356)
           @runner.run %w{queue-next-song pain}
         end
 
         it 'should let me choose the first song' do
           STDIN.should_receive(:gets).and_return("2");
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5812/
-          end.once
+          player_should_get_songs(5812)
           @runner.run %w{queue-next-song pain}
         end
 
         it 'should let me choose song 1 and 3' do
           STDIN.should_receive(:gets).and_return("1,3");
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5356/
-          end
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=9313/
-          end
+          player_should_get_songs(5356, 9313)
           @runner.run %w{queue-next-song pain}
         end
 
         it 'should let me choose song 1 to 3' do
           STDIN.should_receive(:gets).and_return("1-3");
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5356/
-          end
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5812/
-          end.once
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=9313/
-          end
+          player_should_get_songs(5356, 5812, 9313)
           @runner.run %w{queue-next-song pain}
         end
 
         it 'should let me choose all the songs' do
           STDIN.should_receive(:gets).and_return("all");
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5356/
-          end
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=5812/
-          end.once
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=9313/
-          end
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=9446/
-          end
-          @player.should_receive(:add) do |song|
-            song[:stream_url].to_s.should =~ /id=6087/
-          end
+          player_should_get_songs(5356, 5812, 9313, 9446, 6087)
           @runner.run %w{queue-next-song pain}
         end
       end
