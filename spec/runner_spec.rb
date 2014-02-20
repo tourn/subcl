@@ -12,7 +12,7 @@ describe Runner do
     @out = StringIO.new
     @err = StringIO.new
     @api = SubsonicAPI.new({
-      :server => 'localhost',
+      :server => 'example.com',
       :username => 'foo',
       :password => 'bar'
     })
@@ -135,6 +135,40 @@ describe Runner do
           @runner.run %w{queue-next-song pain}
         end
       end
+    end
+
+    context 'playing an album' do
+    end
+
+    context 'playing an artist' do
+    end
+
+    context 'playing a playlist' do
+    end
+  end
+
+  describe 'albumart_url' do
+    it 'should return the url for the albumart of the currently playing song' do
+      stream_url = "http://example.com/rest/stream.view?id=5584&v=1.9.0&c=subcl"
+      @player.should_receive(:current).and_return(stream_url)
+      @out.should_receive(:puts) do |url|
+        url.to_s.should match(%r#foo:bar@example\.com/rest/getCoverArt\.view\?id=5584#)
+      end
+      @runner.run %w{albumart-url}
+    end
+  end
+
+  describe 'search' do
+    it 'should search for songs' do
+    end
+
+    it 'should search for albums' do
+    end
+
+    it 'should search for artists' do
+    end
+
+    it 'should search for playlists' do
     end
   end
 end

@@ -47,7 +47,7 @@ class Subcl
 
   def albumart_url(size = nil)
     current = @player.current
-    @out.puts @api.albumart_url(current, size) unless current.empty?
+    @api.albumart_url(current, size) unless current.empty?
   end
 
   def queue(query, type, inArgs = {})

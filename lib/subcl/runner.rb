@@ -126,7 +126,7 @@ class Runner
       subcl.print(arg, :album)
     when "albumart-url"
       arg = nil if arg.empty?
-      out_stream.puts subcl.albumartUrl(arg)
+      @options[:out_stream].puts subcl.albumart_url(arg)
     when /^album-list$|^al$/
       subcl.albumlist
     when "test-notify"
