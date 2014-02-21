@@ -22,7 +22,7 @@ class Subcl
       exit 4
     end
 
-    @player = @options[:mock_player] || Mpc.new
+    @player = @options[:mock_player] || Player.new
 
     @api = @options[:mock_api] || SubsonicAPI.new(@configs)
 
@@ -59,10 +59,14 @@ class Subcl
     args.merge! inArgs
 
     if @options[:current]
-      unless [:album, :artist].include? type
-        raise ArgumentError, "'current' option can only be used with albums or artists."
-      end
-      query = @player.current type
+      query = case type
+              when :album
+                @player.current_song.album
+              when :artist
+                @player.current_song.artist
+              else
+                raise ArgumentError, "'current' option can only be used with albums or artists."
+              end
     end
 
     songs = case type
@@ -80,7 +84,7 @@ class Subcl
 
     no_matches if songs.empty?
 
-    @player.clear if args[:clear]
+    @player.clearstop if args[:clear]
 
     songs.shuffle! if @options[:shuffle]
 
@@ -131,6 +135,12 @@ class Subcl
     return array if array.length <= 1
     return [array.first] unless @options[:interactive]
     return Picker.new(array).pick(&display_proc)
+  end
+
+  PLAYER_METHODS = %i{play pause toggle stop next previous rewind}
+  def method_missing(name, args)
+    raise NoMethodError unless PLAYER_METHODS.include? name
+    @player.send(name)
   end
 
 end

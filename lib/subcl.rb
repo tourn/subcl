@@ -1,5 +1,5 @@
 require 'subcl/configs'
-require 'subcl/mpc'
+require 'subcl/player'
 require 'subcl/notify'
 require 'subcl/picker'
 require 'subcl/runner'
@@ -11,3 +11,4 @@ require 'subcl/subsonic_api'
 require 'logger'
 
 LOGGER = Logger.new(STDERR)
+LOGGER.level = Logger::INFO

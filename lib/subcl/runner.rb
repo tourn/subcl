@@ -21,7 +21,7 @@ class Runner
     OptionParser.new do |opts|
       opts.banner = "Usage: subcl [options] command"
       opts.separator %{
-    Commands
+    Queue Commands
       clear queue and immediately start playing
           play[-song|-album|-artist|-playlist] <pattern>
           ps|pl|pr|pp <pattern>
@@ -36,6 +36,15 @@ class Runner
           ns|nl|nr|np <pattern>
       albumart-url [size] - print url of albumart to terminal,
           optionally with a specified image size
+
+    Playback Commands
+      play
+      pause
+      toggle (play when pause, pause when played)
+      stop
+      next
+      previous
+      rewind (get to start of song, or previous song when at start)
 
     Options }
 
@@ -87,7 +96,8 @@ class Runner
 
     arg = args[1,args.length-1].join(" ") #put rest of args together so no quotes are required
 
-    case args[0].downcase
+    command = args[0].downcase
+    case command
 
     when /^play-song$|^ps$/
       subcl.queue(arg, :song, {:play => true, :clear => true})
@@ -123,13 +133,22 @@ class Runner
     when "test-notify"
       subcl.testNotify
     else
-      if @options[:tty] then
-        @options[:err_stream].puts "Unknown command '#{args[0]}'"
-        @options[:err_stream].puts @usage
-      else
-        subcl.notifier.notify "Unknown command '#{args[0]}'"
+      begin
+        #pass through for player commands
+        subcl.send(command, [])
+      rescue NoMethodError
+        unknown(command)
       end
-      exit 3
     end
+  end
+
+  def unknown(command)
+    if @options[:tty] then
+      @options[:err_stream].puts "Unknown command '#{command}'"
+      @options[:err_stream].puts @usage
+    else
+      subcl.notifier.notify "Unknown command '#{command}'"
+    end
+    exit 3
   end
 end

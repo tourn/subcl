@@ -48,19 +48,19 @@ describe Runner do
           .and_return(doc('songs_search.xml'))
       end
 
-      it 'should play a song' do
-        @player.should_receive(:clear).once
+      it 'should play it' do
+        @player.should_receive(:clearstop).once
         @player.should_receive(:add).once
         @player.should_receive(:play).once
         @runner.run %w{play-song ephemeral}
       end
 
-      it 'should queue a song last' do
+      it 'should queue it last' do
         @player.should_receive(:add).once
         @runner.run %w{queue-last-song ephemeral}
       end
 
-      it 'should queue a song next' do
+      it 'should queue it next' do
         @player.should_receive(:add).with(anything(), true).once
         @runner.run %w{queue-next-song ephemeral}
       end
@@ -127,7 +127,7 @@ describe Runner do
       end
 
       it 'should play it' do
-        @player.should_receive(:clear).once
+        @player.should_receive(:clearstop).once
         @player.should_receive(:play).once
         @runner.run %w{play-album in time}
       end
@@ -159,7 +159,7 @@ describe Runner do
       end
 
       it 'should play it' do
-        @player.should_receive(:clear).once
+        @player.should_receive(:clearstop).once
         @player.should_receive(:play).once
         @runner.run %w{play-artist intervals}
       end
@@ -183,7 +183,7 @@ describe Runner do
       end
 
       it 'should play it' do
-        @player.should_receive(:clear).once
+        @player.should_receive(:clearstop).once
         @player.should_receive(:play).once
         @runner.run %w{play-playlist peripherial}
       end
