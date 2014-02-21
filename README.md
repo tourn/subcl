@@ -18,7 +18,8 @@ Requirements
 Setup
 -----
 You can install subcl easily using gemcutter:
-  gem install subcl
+
+	gem install subcl
 
 Create a .subcl file in your home directory (~/.subcl):
 
