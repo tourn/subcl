@@ -2,13 +2,11 @@ Subcl! a command-line client for [Subsonic][sub]
 ==================================================
 Based on [winsbe01/subcl][origin]
 
-Subcl is a semi-interactive command-line client for [Subsonic][sub]. It relies
-heavily on mpc, so much in fact, that you still have to use the mpc command for
-playback controls. Subcl only feeds mpd's playlist and keeps no track of it by
-itself. (Although basically it should be possible to call another command line
-		client that works in a similar fashion) If the song/album/artist you enter
-is unique, subcl will immediately return. If not, subcl will list all possible
-matches and ask you for the correct one interactively.
+Subcl is a semi-interactive command-line client for [Subsonic][sub]. It only
+feeds mpd's playlist and keeps no track of it by itself. You can tell it to
+play a song, album, artist or playlist. If your query is unique, subcl will
+immediately return. If not, subcl will list all possible matches and ask you
+for the correct one interactively.
 
 Requirements
 ------------
@@ -41,28 +39,36 @@ Currently supported commands
 ----------------------------
 Some commands are available in a short and a long format
 
-	play: clear play queue and immediately start playing this
+	[play] clear play queue and immediately start playing this
 	pr | play-artist SEARCH_QUERY
 	pl | play-album SEARCH_QUERY
 	ps | play-song SEARCH_QUERY
 	pp | play-playlist SEARCH_QUERY
 	r  | play-random [COUNT]
 
-	queue-next: add this after the current song
+	[queue-next] add this after the current song
 	nr | queue-next-artist SEARCH_QUERY
 	nl | queue-next-album SEARCH_QUERY
 	ns | queue-next-song SEARCH_QUERY
 	np | queue-next-playlist SEARCH_QUERY
 
-	queue-last: add this to the end of the play queue
+	[queue-last] add this to the end of the play queue
 	lr | queue-next-artist SEARCH_QUERY
 	ll | queue-next-album SEARCH_QUERY
 	ls | queue-next-song SEARCH_QUERY
 	lp | queue-next-playlist SEARCH_QUERY
 
 	albumart-url [SIZE] : Prints the url for the albumart of the currently
-	playing song to stdout. Be ware that the url will contain your basic auth
+	playing song to stdout. Note that the url will contain your basic auth
 	credentials in clear text.
+
+	play
+	pause
+	toggle (play or pause)
+	stop
+	next
+	previous
+	rewind (go to start of song or previous song)
 
 When choosing interactively, you can choose numbers, ranges, or 'all'. Examples:
 
@@ -94,24 +100,20 @@ Issues
 			playlists containing the ID3 tags and feeding it to mpd instead of the
 			pure URLs)
 
-Coming up
+Coming Up
 ---------
-- Tests!
-- Dropping dependency of mpc, talking directly to mpd
+- wildcard play command (don't have to specify if it's a song, an album...)
+	with configurable order for non-interactive mode (First, if it's a song name,
+			play this song. otherwise, if it's an album...)
+- currently playing command showing song metadata
+- announce currently playing song via notification system
 
 Ideas
 -----
 - podcasts
-- search-playlist command or something similar
-- structure output based on terminal width
-- make search command more useful
-- wildcard play command (don't have to specify if it's a song, an album...)
-	with configurable order for non-interactive mode (First, if it's a song name,
-			play this song. otherwise, if it's an album...)
-- passing through of non-subcl commands (play, toggle, random) to mpc, so you
-	don't have to remember which executable to call
+- make a useful search/browse command (maybe with curses?)
 - configurable verbosity
-- interactive library browser using ncurses
 
 [sub]: http://subsonic.org
 [origin]: https://github.com/winsbe01/subcl
+vim: set noexpandtab:
