@@ -12,13 +12,15 @@ matches and ask you for the correct one interactively.
 
 Requirements
 ------------
-- Ruby 1.8+
+- Ruby 2.0.0+
 - mpd
-- mpc
 
 Setup
 -----
-.subcl file in your home directory (~/.subcl) contains:
+You can install subcl easily using gemcutter:
+  gem install subcl
+
+Create a .subcl file in your home directory (~/.subcl):
 
 	server <url of your subsonic server>
 	username <username for subsonic>
