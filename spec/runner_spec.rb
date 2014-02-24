@@ -201,7 +201,9 @@ describe Runner do
   describe 'albumart_url' do
     it 'should return the url for the albumart of the currently playing song' do
       stream_url = "http://example.com/rest/stream.view?id=5584&v=1.9.0&c=subcl"
-      @player.should_receive(:current).and_return(stream_url)
+      current = double()
+      current.should_receive(:file).and_return(stream_url)
+      @player.should_receive(:current_song).and_return(current)
       @out.should_receive(:puts) do |url|
         url.to_s.should match(%r#foo:bar@example\.com/rest/getCoverArt\.view\?id=5584#)
       end

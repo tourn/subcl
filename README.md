@@ -102,6 +102,7 @@ Issues
 
 Coming Up
 ---------
+- ask for creation of a config file if none is found
 - wildcard play command (don't have to specify if it's a song, an album...)
 	with configurable order for non-interactive mode (First, if it's a song name,
 			play this song. otherwise, if it's an album...)
