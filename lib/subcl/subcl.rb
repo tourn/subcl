@@ -3,6 +3,7 @@ class Subcl
   attr_accessor :player, :api, :notifier
 
   def initialize(options = {})
+    #TODO merge options and configs
     @options = {
       :interactive => true,
       :tty => true,
@@ -21,6 +22,8 @@ class Subcl
       @err.puts e.message
       exit 4
     end
+
+    @configs[:random_song_count] = @options[:random_song_count] if @options[:random_song_count]
 
     @player = @options[:mock_player] || Player.new
 
@@ -72,7 +75,8 @@ class Subcl
     songs = case type
             when :randomSong
               begin
-                @api.random_songs(query)
+                count = query.empty? ? @configs[:random_song_count] : query
+                @api.random_songs(count)
               rescue ArgumentError
                 raise ArgumentError, "random-songs takes an integer as argument"
               end

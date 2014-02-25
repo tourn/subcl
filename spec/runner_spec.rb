@@ -21,7 +21,8 @@ describe Runner do
       :out_stream => @out,
       :err_stream => @err,
       :mock_api => @api,
-      :mock_player => @player
+      :mock_player => @player,
+      :random_song_count => 10
     })
   end
 
@@ -208,6 +209,30 @@ describe Runner do
         url.to_s.should match(%r#foo:bar@example\.com/rest/getCoverArt\.view\?id=5584#)
       end
       @runner.run %w{albumart-url}
+    end
+  end
+
+  describe 'play-random' do
+    it 'should play [config_value] random songs' do
+      @api.should_receive(:query) do |method, args|
+        method.should == 'getRandomSongs.view'
+        args[:size].should == 10
+      end.and_return(doc('random-10.xml'))
+      @player.should_receive(:clearstop)
+      @player.should_receive(:add).exactly(10).times
+      @player.should_receive(:play)
+      @runner.run %w{play-random}
+    end
+
+    it 'should play 5 random songs' do
+      @api.should_receive(:query) do |method, args|
+        method.should == 'getRandomSongs.view'
+        args[:size].should == 5
+      end.and_return(doc('random-5.xml'))
+      @player.should_receive(:clearstop)
+      @player.should_receive(:add).exactly(5).times
+      @player.should_receive(:play)
+      @runner.run %w{play-random 5}
     end
   end
 end
