@@ -63,11 +63,11 @@ class Runner
         @options[:current] = true
       end
       opts.on('-h', '--help', 'Display this screen') do
-        out_stream.puts opts
+        @options[:out_stream].puts opts
         exit
       end
       opts.on("--version", "Print version information") do
-        out_stream.puts Configs.new[:app_version]
+        @options[:out_stream].puts Subcl::VERSION
         exit
       end
 

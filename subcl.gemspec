@@ -1,9 +1,11 @@
 require 'rake'
 require 'time'
 
+require 'subcl/version'
+
 Gem::Specification.new do |s|
 	s.name = 'subcl'
-	s.version = '1.1.1'
+	s.version = Subcl::VERSION
 	s.date = DateTime.now.strftime('%Y-%m-%d')
 	s.summary = 'A commandline client for the subsonic music server'
 	s.description = %Q{ This is a commandline client for the subsonic music server (www.subsonic.org) relying on mpd for playback. It supports searching for songs, albums, etc on the commandline and adding them to mpds playlist. It also brings some commands to control the playback.}
