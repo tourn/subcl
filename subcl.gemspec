@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 	s.description = %Q{ This is a commandline client for the subsonic music server (www.subsonic.org) relying on mpd for playback. It supports searching for songs, albums, etc on the commandline and adding them to mpds playlist. It also brings some commands to control the playback.}
 	s.author = 'Daniel Latzer'
 	s.email = 'latzer.daniel@gmail.com'
-	s.files = FileList['lib/**/*', 'bin/*', 'share/icon.png'].to_a
+	s.files = FileList['lib/**/*', 'bin/*', 'share/*'].to_a
 	s.executables << 'subcl'
 	s.executables << 'subcl-api'
 	s.platform = Gem::Platform::RUBY

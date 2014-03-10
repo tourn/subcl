@@ -1,0 +1,13 @@
+## Subcl Configuration
+## Lines started with # are ignored
+
+## Mandatory settings
+#server http://example.com
+#username me
+#password secret
+
+## Optional settings
+#notify_method awesome
+#random_song_count 100
+#max_search_results
+
