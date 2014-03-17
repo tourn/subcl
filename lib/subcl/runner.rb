@@ -109,6 +109,8 @@ class Runner
       subcl.queue(arg, :playlist, {:play => true, :clear => true})
     when /^play-random$|^r$/
       subcl.queue(arg, :randomSong, {:play => true, :clear => true})
+    when /^play-any$|^pa$|^p$/
+      subcl.queue(arg, :any, {:play => true, :clear => true})
     when /^queue-next-song$|^ns$/
       subcl.queue(arg, :song, {:insert => true})
     when /^queue-next-artist$|^nr$/

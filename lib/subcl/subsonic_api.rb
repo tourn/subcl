@@ -151,6 +151,7 @@ class SubsonicAPI
       params[:songCount] = max
       params[:albumCount] = max
       params[:artistCount] = max
+      #TODO need to search for playlists too!
     else
       raise "Cannot search for type '#{type}'"
     end
@@ -163,6 +164,7 @@ class SubsonicAPI
         entity[:type] = entity_type
         if entity_type == :song
           entity[:stream_url] = stream_url(entity[:id])
+          entity[:name] = entity[:title]
         end
         entity
       end

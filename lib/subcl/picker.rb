@@ -12,6 +12,7 @@ class Picker
     i = 1
     @available.each do |elem|
       choices[i] = elem
+      #TODO add padding for numbers with one digit
       $stderr.print "[#{i}] "
       yield(elem)
       i = i + 1

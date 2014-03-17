@@ -9,7 +9,8 @@ class Subcl
       :tty => true,
       :insert => false,
       :out_stream => STDOUT,
-      :err_stream => STDERR
+      :err_stream => STDERR,
+      :wildcard_order => %i{song album artist playlist}
     }.merge! options
 
     @out = @options[:out_stream]
@@ -36,7 +37,7 @@ class Subcl
         @out.puts sprintf "%-20.20s %-20.20s %-20.20s %-4.4s", song[:title], song[:artist], song[:album], song[:year]
       },
       :album => proc { |album|
-        @out.puts sprintf "%-30.30s %-30.30s %-4.4s", album[:name], album[:artist], album[:year]
+        @out.puts sprintf "%-30.30s %-30.30s  %-4.4s", album[:name], album[:artist], album[:year]
       },
       :artist => proc { |artist|
         @out.puts "#{artist[:name]}"
@@ -44,8 +45,11 @@ class Subcl
       :playlist => proc { |playlist|
         @out.puts "#{playlist[:name]} by #{playlist[:owner]}"
       },
+      :any => proc { |thing|
+        #TODO this works, but looks confusing when multiple types are displayed
+        @display[thing[:type]].call(thing)
+      }
     }
-
   end
 
   def albumart_url(size = nil)
@@ -80,8 +84,9 @@ class Subcl
               rescue ArgumentError
                 raise ArgumentError, "random-songs takes an integer as argument"
               end
-            else #song, album, artist, playlist
+            else #song, album, artist, playlist, any
               entities = @api.search(query, type)
+              entities.sort!(&any_sorter(query)) if type == :any
               entities = invoke_picker(entities, &@display[type])
               @api.get_songs(entities)
             end
@@ -97,6 +102,35 @@ class Subcl
     end
 
     @player.play if args[:play]
+  end
+
+  #returns a sorter proc for two hashes with the attribute :type and :name
+  #
+  #it will use split(" ") on query and then count how many words of query each
+  #:name contains. If two hashes have the same amount of query words,
+  #@options[:wildcard_order] is used
+  #
+  #the closest matches will be at the beginning
+  #
+  def any_sorter(query)
+    #TODO do things with query! find the things that match the query the most
+    order = @options[:wildcard_order]
+    lambda do |e1, e2|
+      cmp = match_score(e1, query) <=> match_score(e2, query)
+      if cmp == 0
+        out = order.index(e1[:type]) <=> order.index(e2[:type])
+        LOGGER.info "CMP2 #{out} FOR #{e1[:name]}:#{e1[:type]} - #{e2[:name]}:#{e2[:type]}"
+        out
+      else
+        -cmp
+      end
+    end
+  end
+
+  def match_score(entity, query)
+    query.split(' ').inject(0) do |memo, word|
+      memo + (entity[:name].downcase.include?(word.downcase) ? 1 : 0)
+    end
   end
 
   def print(name, type)
