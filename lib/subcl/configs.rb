@@ -5,9 +5,11 @@ class Configs
   attr_accessor :configs
 
   REQUIRED_SETTINGS = %i{ server username password }
-  OPTIONAL_SETTINGS = %i{ max_search_results notify_method random_song_count }
+  OPTIONAL_SETTINGS = %i{ max_search_results notify_method random_song_count wildcard_order}
   DEFAULT_PATH = File.expand_path('~/.subcl')
   DEFAULT_CONFIG = File.dirname(__FILE__) + "/../../share/subcl.default"
+
+  WILDCARD_ORDER_ITEMS = %i{ song album artist playlist }
 
   def initialize(file = DEFAULT_PATH)
     @configs = {
@@ -32,7 +34,9 @@ class Configs
       next if line.start_with? '#'
       next if line.chomp.empty?
 
-      key, value = line.split(' ')
+      key, value = line.split(' ', 2)
+      value.chomp!
+
       key = key.to_sym
       if settings.include? key
         @configs[key] = value
@@ -41,10 +45,27 @@ class Configs
       end
     end
 
+    validate_wildcard_order
+
     REQUIRED_SETTINGS.each do |setting|
       if @configs[setting].nil?
         raise "Missing setting '#{setting}'"
       end
+    end
+  end
+
+  def validate_wildcard_order
+    if @configs[:wildcard_order]
+      order = @configs[:wildcard_order]
+
+      WILDCARD_ORDER_ITEMS.each do |item|
+        unless order.include? item
+          LOGGER.warn("wildcard_order is missing #{item}")
+          order << item
+        end
+      end
+
+      @configs[:wildcard_order] = order
     end
   end
 
