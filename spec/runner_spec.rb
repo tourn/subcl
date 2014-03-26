@@ -197,6 +197,37 @@ describe Runner do
         @runner.run %w{queue-next-playlist peripherial}
       end
     end
+
+    context 'when looking for anything' do
+      before :each do
+      end
+
+      it 'should order the options in the configured way and play all' do
+        @api.should_receive(:query) do |method, args|
+          method.should == 'search3.view'
+        end.and_return(doc('any_search.xml'))
+        @api.should_receive(:get_playlists).and_return(
+          [{ :type => :playlist, :name => 'bogus playlist', :id => 1 }]
+        )
+
+        expected_order = %i{playlist album artist song}
+        @api.should_receive(:get_songs) do |entities|
+          expected_order.each_with_index do |type, i|
+            entities[i][:type].should == type
+          end
+          #actually I'm done testing here, but I need to run though the rest of the
+          #method so the spec doesn't crash
+          [nil, nil, nil, nil]
+        end
+        STDIN.should_receive(:gets).and_return('all')
+
+        @player.should_receive(:clearstop)
+        @player.should_receive(:add).exactly(4).times
+        @player.should_receive(:play)
+
+        @runner.run %w{play-any foo}
+      end
+    end
   end
 
   describe 'albumart_url' do
