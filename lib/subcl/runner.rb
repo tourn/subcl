@@ -109,7 +109,7 @@ class Runner
       subcl.queue(arg, :playlist, {:play => true, :clear => true})
     when /^play-random$|^r$/
       subcl.queue(arg, :randomSong, {:play => true, :clear => true})
-    when /^play-any$|^pa$|^p$/
+    when /^play-any$|^pn$|^p$/
       subcl.queue(arg, :any, {:play => true, :clear => true})
     when /^queue-next-song$|^ns$/
       subcl.queue(arg, :song, {:insert => true})
@@ -119,6 +119,8 @@ class Runner
       subcl.queue(arg, :album, {:insert => true})
     when /^queue-next-playlist$|^np$/
       subcl.queue(arg, :playlist, {:insert => true})
+    when /^queue-next-any$|^nn$|^n$/
+      subcl.queue(arg, :any, {:insert => true})
     when /^queue-last-song$|^ls$/
       subcl.queue(arg, :song)
     when /^queue-last-artist$|^lr$/
@@ -127,6 +129,8 @@ class Runner
       subcl.queue(arg, :album)
     when /^queue-last-playlist$|^lp$/
       subcl.queue(arg, :playlist)
+    when /^queue-last-any$|^ln$|^l$/
+      subcl.queue(arg, :any)
     when "albumart-url"
       arg = nil if arg.empty?
       @options[:out_stream].puts subcl.albumart_url(arg)
