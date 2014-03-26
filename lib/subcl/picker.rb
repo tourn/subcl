@@ -9,11 +9,14 @@ class Picker
   def pick
     choices = {}
 
+    #TODO add type column when multiple types are available
+
+    counter_padding = @available.length.to_s.length
     i = 1
     @available.each do |elem|
       choices[i] = elem
       #TODO add padding for numbers with one digit
-      $stderr.print "[#{i}] "
+      $stderr.print "[#{i.to_s.rjust(counter_padding)}] "
       yield(elem)
       i = i + 1
     end
