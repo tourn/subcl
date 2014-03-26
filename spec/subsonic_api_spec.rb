@@ -46,8 +46,11 @@ describe SubsonicAPI do
 
     it 'should return anything that matches' do
       @api.should_receive(:query).with('search3.view', anything()).and_return(doc('any_search.xml'))
+      @api.should_receive(:get_playlists).with('foo').and_return([
+        { :type => :playlist, :name => 'bogus playlist', :id => 1 }
+      ])
       re = @api.search('foo', :any)
-      re.length.should == 3
+      re.length.should == 4
       artist = re[0]
       artist[:type].should == :artist
       artist[:id].should == '45'
@@ -57,6 +60,8 @@ describe SubsonicAPI do
       song = re[2]
       song[:type].should == :song
       song[:id].should == '1577'
+      playlist = re[3]
+      playlist[:type].should == :playlist
     end
 
     it 'should return some playlists' do

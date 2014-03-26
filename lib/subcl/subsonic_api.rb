@@ -158,7 +158,7 @@ class SubsonicAPI
 
     doc = query('search3.view', params)
 
-    %i{artist album song}.collect_concat do |entity_type|
+    results = %i{artist album song}.collect_concat do |entity_type|
       doc.elements.collect("subsonic-response/searchResult3/#{entity_type}") do |entity|
         entity = Hash[entity.attributes.collect{ |key, val| [key.to_sym, val]}]
         entity[:type] = entity_type
@@ -169,6 +169,11 @@ class SubsonicAPI
         entity
       end
     end
+
+    if type == :any
+      results += get_playlists(query)
+    end
+    return results
   end
 
   def query(method, params = {})

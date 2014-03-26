@@ -10,7 +10,7 @@ class Subcl
       :insert => false,
       :out_stream => STDOUT,
       :err_stream => STDERR,
-      :wildcard_order => %i{song album artist playlist}
+      :wildcard_order => %i{playlist album artist song}
     }.merge! options
 
     @out = @options[:out_stream]
@@ -119,7 +119,6 @@ class Subcl
       cmp = match_score(e1, query) <=> match_score(e2, query)
       if cmp == 0
         out = order.index(e1[:type]) <=> order.index(e2[:type])
-        LOGGER.info "CMP2 #{out} FOR #{e1[:name]}:#{e1[:type]} - #{e2[:name]}:#{e2[:type]}"
         out
       else
         -cmp
@@ -175,6 +174,7 @@ class Subcl
     return Picker.new(array).pick(&display_proc)
   end
 
+  #these methods will be passed through to the underlying player
   PLAYER_METHODS = %i{play pause toggle stop next previous rewind}
   def method_missing(name, args)
     raise NoMethodError unless PLAYER_METHODS.include? name
