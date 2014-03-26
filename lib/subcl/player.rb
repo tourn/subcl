@@ -42,7 +42,15 @@ class Player < SimpleDelegator
 
   # if mpd is playing, pause it. Otherwise resume playback
   def toggle
-    @mpd.pause = @mpd.playing? ? 1 : 0
+    if @mpd.playing?
+      @mpd.pause = 1
+    else
+      # experimental hack: I think this forces mpd to start downloading the stream again.
+      # this should prevent a bug that fails to resume streams after pausing
+      # TODO might make this configurable
+      @mpd.seek(@mpd.status[:elapsed].to_i)
+      @mpd.pause = 0
+    end
   end
 
   def pause
