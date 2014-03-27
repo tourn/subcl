@@ -20,6 +20,23 @@ describe Configs do
     stub_const("LOGGER",  logger)
     Configs.new('spec/configs/invalid').stub(:ping)
   end
+
+  it 'should ask to create a default config if no ~/.subcl is found' do
+    #TODO
+  end
+
+  context 'wildcard_order' do
+    it 'should issue a warning for incomplete order' do
+      logger = double()
+      logger.should_receive(:warn).twice
+      stub_const("LOGGER",  logger)
+      Configs.new('spec/configs/wildcard-incomplete').stub(:ping)
+    end
+
+    it 'should accept a valid order' do
+      Configs.new('spec/configs/wildcard-valid').stub(:ping)
+    end
+  end
 end
 
 describe 'Configs array access' do

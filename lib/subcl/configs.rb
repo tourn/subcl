@@ -56,16 +56,25 @@ class Configs
 
   def validate_wildcard_order
     if @configs[:wildcard_order]
-      order = @configs[:wildcard_order]
-
-      WILDCARD_ORDER_ITEMS.each do |item|
-        unless order.include? item
-          LOGGER.warn("wildcard_order is missing #{item}")
-          order << item
+      raw_order = @configs[:wildcard_order]
+      final_order = []
+      raw_order.split(',').each do |item|
+        item = item.to_sym
+        if WILDCARD_ORDER_ITEMS.include? item
+          final_order << item
+        else
+          LOGGER.warn("Invalid wildcard_order item #{item}")
         end
       end
 
-      @configs[:wildcard_order] = order
+      WILDCARD_ORDER_ITEMS.each do |item|
+        unless final_order.include? item
+          LOGGER.warn("wildcard_order is missing #{item}")
+          final_order << item
+        end
+      end
+
+      @configs[:wildcard_order] = final_order
     end
   end
 

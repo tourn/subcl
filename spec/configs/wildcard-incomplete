@@ -1,0 +1,6 @@
+server http://example.com
+username foo
+password bar
+notify_method growlnotify
+random_song_count 50
+wildcard_order album,artist
