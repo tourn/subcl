@@ -143,7 +143,11 @@ class Runner
         #pass through for player commands
         subcl.send(command, [])
       rescue NoMethodError
-        unknown(command)
+        if subcl.configs[:play_any_on_unknown_command]
+          subcl.queue(args.join(" "), :any, {:play => true, :clear => true})
+        else
+          unknown(command)
+        end
       end
     end
   end

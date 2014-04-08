@@ -5,7 +5,7 @@ class Configs
   attr_accessor :configs
 
   REQUIRED_SETTINGS = %i{ server username password }
-  OPTIONAL_SETTINGS = %i{ max_search_results notify_method random_song_count wildcard_order}
+  OPTIONAL_SETTINGS = %i{ max_search_results notify_method random_song_count wildcard_order play_any_on_unknown_command}
   DEFAULT_PATH = File.expand_path('~/.subcl')
   DEFAULT_CONFIG = File.dirname(__FILE__) + "/../../share/subcl.default"
 
@@ -14,6 +14,7 @@ class Configs
   def initialize(file = DEFAULT_PATH)
     @configs = {
       :notifyMethod => "auto",
+      :play_any_on_unknown_command => false
     }
 
     @file = File.expand_path(file)

@@ -1,6 +1,6 @@
 
 class Subcl
-  attr_accessor :player, :api, :notifier
+  attr_accessor :player, :api, :notifier, :configs
 
   def initialize(options = {})
     #TODO merge options and configs
