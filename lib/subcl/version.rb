@@ -1,3 +1,3 @@
 class Subcl
-  VERSION = '1.1.2-dev'
+  VERSION = '1.1.2'
 end

@@ -34,16 +34,20 @@ Optionally it may contain:
 		notify-send
 	random_song_count <number, count songs that are fetched for random-songs
 		without argument, default 10>
+	play_any_on_unknown_command true (if you don't supply any valid command, i.e. subcl foo, it will be interpreted as 'subcl play-any foo'
+	wildcard_order song,album,artist,playlist (The order in which play-any will sort items)
 
 Currently supported commands
 ----------------------------
-Some commands are available in a short and a long format
+Some commands are available in a short and a long format:
+	[short command] | [long command] ATTRIBUTES
 
 	[play] clear play queue and immediately start playing this
 	pr | play-artist SEARCH_QUERY
 	pl | play-album SEARCH_QUERY
 	ps | play-song SEARCH_QUERY
 	pp | play-playlist SEARCH_QUERY
+	pn | play-any SEARCH_QUERY
 	r  | play-random [COUNT]
 
 	[queue-next] add this after the current song
@@ -51,12 +55,14 @@ Some commands are available in a short and a long format
 	nl | queue-next-album SEARCH_QUERY
 	ns | queue-next-song SEARCH_QUERY
 	np | queue-next-playlist SEARCH_QUERY
+	nn | queue-next-any SEARCH_QUERY
 
 	[queue-last] add this to the end of the play queue
-	lr | queue-next-artist SEARCH_QUERY
-	ll | queue-next-album SEARCH_QUERY
-	ls | queue-next-song SEARCH_QUERY
-	lp | queue-next-playlist SEARCH_QUERY
+	lr | queue-last-artist SEARCH_QUERY
+	ll | queue-last-album SEARCH_QUERY
+	ls | queue-last-song SEARCH_QUERY
+	lp | queue-last-playlist SEARCH_QUERY
+	ln | queue-last-any SEARCH_QUERY
 
 	albumart-url [SIZE] : Prints the url for the albumart of the currently
 	playing song to stdout. Note that the url will contain your basic auth
