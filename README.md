@@ -68,6 +68,11 @@ Some commands are available in a short and a long format:
 	playing song to stdout. Note that the url will contain your basic auth
 	credentials in clear text.
 
+	status [format] : If a song is playing, prints its info according to
+	the format string. Otherwise, tells if mpd is paused/stopped/off.
+	Default format string: '%artist - %title'
+	Keys are directly pulled from the [subsonic API](http://www.subsonic.org/pages/inc/api/examples/song_example_1.xml)
+
 	play
 	pause
 	toggle (play or pause)

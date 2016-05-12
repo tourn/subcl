@@ -84,7 +84,6 @@ class SubsonicAPI
     end
   end
 
-
   #returns all playlists matching name
   #subsonic features no mechanism to search by playlist name, so this method retrieves
   #all playlists and and filters them locally. This might become problematic when the server
@@ -117,6 +116,13 @@ class SubsonicAPI
     doc.elements.collect('subsonic-response/randomSongs/song') do |song|
       decorate_song(song.attributes)
     end
+  end
+
+  def song_info(id)
+    doc = query('getSong.view', {:id => id})
+    doc.elements.collect('subsonic-response/song') do |song|
+      Hash[song.attributes.collect {|key, val| [key.to_sym, val]}]
+    end[0]
   end
 
   #takes the attributes of a song tag from the xml and applies the

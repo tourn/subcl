@@ -266,4 +266,65 @@ describe Runner do
       @runner.run %w{play-random 5}
     end
   end
+
+  describe 'status' do
+    it 'should show disconnected when no mpd is available' do
+      @player.should_receive(:status) do
+        raise SubclError.new('Cannot connect')
+      end
+      @out.should_receive(:puts) do |str|
+        str.should == 'disconnected'
+      end
+      @runner.run %w{status}
+    end
+
+    it 'should show paused when mpd is paused' do
+      @player.should_receive(:status).and_return({:state => :pause })
+      @out.should_receive(:puts) do |str|
+        str.should == 'paused'
+      end
+      @runner.run %w{status}
+    end
+
+    it 'should show stopped when mpd is stopped' do
+      @player.should_receive(:status).and_return({:state => :stop })
+      @out.should_receive(:puts) do |str|
+        str.should == 'stopped'
+      end
+      @runner.run %w{status}
+    end
+
+    class FakeSong
+      attr_reader :file
+      def initialize(file)
+        @file = file
+      end
+    end
+
+    it 'should use the default format' do
+      @player.should_receive(:status).and_return({:state => :play })
+      @player.should_receive(:current_song).and_return(FakeSong.new("http://music.example.com/rest/stream.view?id=120&v=1.9.0&c=subcl"))
+      @api.should_receive(:song_info).and_return({
+        :artist => 'Intervals',
+        :title => 'The Shape of Colour'
+      })
+      @out.should_receive(:puts) do |str|
+        str.should == 'Intervals - The Shape of Colour'
+      end
+      @runner.run %w{status}
+    end
+
+    it 'should use a custom format' do
+      @player.should_receive(:status).and_return({:state => :play })
+      @player.should_receive(:current_song).and_return(FakeSong.new("http://music.example.com/rest/stream.view?id=120&v=1.9.0&c=subcl"))
+      @api.should_receive(:song_info).and_return({
+        :artist => 'Intervals',
+        :title => 'The Shape of Colour'
+      })
+      @out.should_receive(:puts) do |str|
+        str.should == 'The Shape of Colour_Intervals'
+      end
+      @runner.run %w{status %title_%artist}
+    end
+  end
 end

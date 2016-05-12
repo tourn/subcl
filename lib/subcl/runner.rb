@@ -36,6 +36,7 @@ class Runner
           ns|nl|nr|np <pattern>
       albumart-url [size] - print url of albumart to terminal,
           optionally with a specified image size
+      status [format] - print the current song or status of mpd
 
     Playback Commands
       play
@@ -134,6 +135,8 @@ class Runner
     when "albumart-url"
       arg = nil if arg.empty?
       @options[:out_stream].puts subcl.albumart_url(arg)
+    when "status"
+      @options[:out_stream].puts subcl.status arg
     when /^album-list$|^al$/
       subcl.albumlist
     when "test-notify"

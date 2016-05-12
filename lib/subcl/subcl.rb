@@ -26,7 +26,7 @@ class Subcl
 
     @configs[:random_song_count] = @options[:random_song_count] if @options[:random_song_count]
 
-    @player = @options[:mock_player] || Player.new
+    @player = nil
 
     @api = @options[:mock_api] || SubsonicAPI.new(@configs)
 
@@ -52,8 +52,15 @@ class Subcl
     }
   end
 
+  def get_player()
+    if @player == nil
+      @player = @options[:mock_player] || Player.new
+    end
+    @player
+  end
+
   def albumart_url(size = nil)
-    current = @player.current_song
+    current = get_player.current_song
     @api.albumart_url(current.file, size) if current
   end
 
@@ -68,9 +75,9 @@ class Subcl
     if @options[:current]
       query = case type
               when :album
-                @player.current_song.album
+                get_player.current_song.album
               when :artist
-                @player.current_song.artist
+                get_player.current_song.artist
               else
                 raise ArgumentError, "'current' option can only be used with albums or artists."
               end
@@ -93,15 +100,15 @@ class Subcl
 
     no_matches if songs.empty?
 
-    @player.clearstop if args[:clear]
+    get_player.clearstop if args[:clear]
 
     songs.shuffle! if @options[:shuffle]
 
     songs.each do |song|
-      @player.add(song, args[:insert])
+      get_player.add(song, args[:insert])
     end
 
-    @player.play if args[:play]
+    get_player.play if args[:play]
   end
 
   #returns a sorter proc for two hashes with the attribute :type and :name
@@ -174,11 +181,36 @@ class Subcl
     return Picker.new(array).pick(&display_proc)
   end
 
+  def status(format_string = "")
+    format_string = "%artist - %title" if format_string.empty?
+
+    state = get_player.status[:state]
+    case state
+    when :pause
+      return "paused"
+    when :stop
+      return "stopped"
+    when :play
+      song_id = /id=(\d*)/.match(get_player.current_song.file)[1]
+      info = @api.song_info(song_id)
+      return format(info, format_string)
+    end
+  rescue SubclError
+    return "disconnected"
+  end
+
+  def format(song, format_string)
+    song.each do |key, val|
+      format_string.sub!('%'+key.to_s, val)
+    end
+    return format_string
+  end
+
   #these methods will be passed through to the underlying player
   PLAYER_METHODS = %i{play pause toggle stop next previous rewind}
   def method_missing(name, args)
     raise NoMethodError unless PLAYER_METHODS.include? name
-    @player.send(name)
+    get_player.send(name)
   end
 
 end

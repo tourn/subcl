@@ -196,6 +196,20 @@ describe SubsonicAPI do
     end
   end
 
+  describe '#song_info' do
+    it 'should return the songs attributes as a hash' do
+      @api.should_receive(:query) do |path, args|
+        path.should == 'getSong.view'
+        args[:id].should == 1660
+      end.and_return(doc('get_song.xml'))
+      re = @api.song_info(1660)
+      p re
+      re[:id].should == '1660'
+      re[:artist].should == 'Intervals'
+      re[:title].should == "I'm Awake"
+    end
+  end
+
   describe '#random_songs' do
     it 'should get 10 random songs by default' do
     end

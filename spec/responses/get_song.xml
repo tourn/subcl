@@ -1,0 +1,3 @@
+<subsonic-response xmlns="http://subsonic.org/restapi" status="ok" version="1.14.0">
+<song id="1660" parent="1659" isDir="false" title="I'm Awake" album="The Shape of Colour" artist="Intervals" track="1" year="2015" genre="Progressive Math Metal" coverArt="1659" size="9941278" contentType="audio/mpeg" suffix="mp3" duration="233" bitRate="320" path="Intervals/The Shape of Colour/01 I'm Awake.mp3" playCount="5" discNumber="1" created="2015-12-03T22:15:54.000Z" albumId="113" artistId="5" type="music"/>
+</subsonic-response>
