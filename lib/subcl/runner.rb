@@ -150,6 +150,13 @@ class Runner
         end
       end
     end
+  rescue SubclError => e
+    if @options[:tty] then
+      @options[:err_stream].puts e.message
+    else
+      subcl.notifier.notify e.message
+    end
+    exit 4
   end
 
   def unknown(command)

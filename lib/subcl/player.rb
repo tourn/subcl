@@ -5,7 +5,11 @@ class Player < SimpleDelegator
   def initialize
     #TODO add configs for host/port/security
     @mpd = MPD.new
-    @mpd.connect
+    begin
+      @mpd.connect
+    rescue
+      raise SubclError.new('Could not connect to MPD! Is it running?')
+    end
     super(@mpd)
   end
 

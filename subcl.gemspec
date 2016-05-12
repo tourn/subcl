@@ -10,14 +10,14 @@ Gem::Specification.new do |s|
 	s.version = Subcl::VERSION
 	s.date = DateTime.now.strftime('%Y-%m-%d')
 	s.summary = 'A commandline client for the subsonic music server'
-	s.description = %Q{ This is a commandline client for the subsonic music server (www.subsonic.org) relying on mpd for playback. It supports searching for songs, albums, etc on the commandline and adding them to mpds playlist. It also brings some commands to control the playback.}
+	s.description = %Q{ This is a commandline client for the subsonic music server (www.subsonic.org) relying on mpd for playback. It supports searching for songs, albums, etc on the commandline and adding them to mpds playlist. It also wraps some mpc commands to control the playback.}
 	s.author = 'Daniel Latzer'
 	s.email = 'latzer.daniel@gmail.com'
 	s.files = FileList['lib/**/*', 'bin/*', 'share/*'].to_a
 	s.executables << 'subcl'
 	s.executables << 'subcl-api'
 	s.platform = Gem::Platform::RUBY
-	s.homepage = 'https://github.com/Tourniquet/subcl'
+	s.homepage = 'https://github.com/tourn/subcl'
 	s.required_ruby_version = '>= 2.0.0'
 	s.licenses = ['MIT']
   s.add_development_dependency 'rspec', '=2.14.1'
